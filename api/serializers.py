@@ -2,12 +2,6 @@ from rest_framework import serializers
 from api.models import Team, Coach, Player
 
 
-class TeamSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Team
-        fields = ['url', 'id', 'name_abbreviation', 'full_name']
-
-
 class CoachSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Coach
@@ -23,3 +17,10 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
             'blocks_per_game', 'turnovers_per_game', 'field_goal_percentage',
             'three_point_field_goal_percentage', 'free_throw_percentage'
         ]
+
+class TeamSerializer(serializers.HyperlinkedModelSerializer):
+    players = PlayerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Team
+        fields = ['url', 'id', 'name_abbreviation', 'full_name', 'players']
