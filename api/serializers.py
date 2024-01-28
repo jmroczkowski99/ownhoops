@@ -30,6 +30,7 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
             'position',
             'height',
             'weight',
+            'jersey_number',
             'points_per_game',
             'rebounds_per_game',
             'assists_per_game',
@@ -72,7 +73,8 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
                 'url': player_data.get('url', None),
                 'id': player_data.get('id', None),
                 'name': player_data.get('name', None),
-                'position': player_data.get('position', None)
+                'position': player_data.get('position', None),
+                'jersey_number': player_data.get('jersey_number', None)
             }
             for player_data in players_data
         ]
