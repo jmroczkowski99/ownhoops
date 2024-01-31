@@ -1,5 +1,11 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from api.models import Team, Coach, Player
+from api.validators import (
+    validate_alpha_and_title,
+    validate_future_date,
+    validate_positive
+)
 
 
 class CoachSerializer(serializers.HyperlinkedModelSerializer):
@@ -12,6 +18,12 @@ class CoachSerializer(serializers.HyperlinkedModelSerializer):
     def get_current_team_name_abbreviation(self, obj):
         team_instance = obj.current_team
         return team_instance.name_abbreviation
+
+    def validate_name(self, value):
+        return validate_alpha_and_title(value, 'Name should only contain letters.', 'Name should be capitalized.')
+
+    def validate_date_of_birth(self, value):
+        return validate_future_date(value, 'Birth date cannot be in the future.')
 
 
 class PlayerSerializer(serializers.HyperlinkedModelSerializer):
@@ -41,10 +53,41 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
             'three_point_field_goal_percentage',
             'free_throw_percentage',
         ]
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Player.objects.all(),
+                fields=['jersey_number', 'team'],
+                message='This jersey number is already assigned to a player in this team.'
+            )
+        ]
 
     def get_team_name_abbreviation(self, obj):
         team_instance = obj.team
         return team_instance.name_abbreviation
+
+    def validate_name(self, value):
+        return validate_alpha_and_title(value, 'Name should only contain letters.', 'Name should be capitalized.')
+
+    def validate_date_of_birth(self, value):
+        return validate_future_date(value, 'Birth date cannot be in the future.')
+
+    def validate_country(self, value):
+        return validate_alpha_and_title(
+            value,
+            'Country name should only contain letters.',
+            'Country name should be capitalized.'
+        )
+
+    def validate_height(self, value):
+        return validate_positive(value, 'Height must be greater than 0.')
+
+    def validate_weight(self, value):
+        return validate_positive(value, 'Weight must be greater than 0.')
+
+    def validate_jersey_number(self, value):
+        if not 0 <= value <= 99:
+            raise serializers.ValidationError('Invalid jersey number. Only numbers 0-99 are allowed.')
+        return value
 
 
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
@@ -78,3 +121,19 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             }
             for player_data in players_data
         ]
+
+    def validate_name_abbreviation(self, value):
+        if not len(value) == 3:
+            raise serializers.ValidationError('Team name abbreviation must contain 3 letters.')
+        if not value.replace(' ', '').isalpha():
+            raise serializers.ValidationError('Team name abbreviation can contain only letters.')
+        if not value.isupper():
+            raise serializers.ValidationError('Team name abbreviation should be uppercase.')
+        return value
+
+    def validate_full_name(self, value):
+        if not value.replace(' ', '').isalnum():
+            raise serializers.ValidationError('Team name can contain only letters and numbers.')
+        if not value.istitle():
+            raise serializers.ValidationError('Team name should be capitalized.')
+        return value

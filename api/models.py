@@ -1,6 +1,4 @@
 from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db.models import UniqueConstraint
 
 
 class Team(models.Model):
@@ -36,14 +34,7 @@ class Player(models.Model):
     position = models.CharField(max_length=2, choices=POSITION_CHOICES, blank=False, null=False)
     height = models.IntegerField(null=False, blank=False)
     weight = models.IntegerField(null=False, blank=False)
-    jersey_number = models.IntegerField(
-        null=True,
-        blank=True,
-        validators=[
-            MinValueValidator(0, message="Jersey number must be at least 0."),
-            MaxValueValidator(99, message="Jersey number must be at most 99."),
-        ]
-    )
+    jersey_number = models.IntegerField(null=True, blank=True)
     points_per_game = models.FloatField(null=False, blank=False)
     rebounds_per_game = models.FloatField(null=False, blank=False)
     assists_per_game = models.FloatField(null=False, blank=False)
@@ -53,14 +44,6 @@ class Player(models.Model):
     field_goal_percentage = models.FloatField(null=False, blank=False)
     three_point_field_goal_percentage = models.FloatField(null=False, blank=False)
     free_throw_percentage = models.FloatField(null=False, blank=False)
-
-    class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=['team', 'jersey_number'],
-                name='unique_team_jersey_number',
-            )
-        ]
 
     def __str__(self):
         return f"{self.name} - DOB: {self.date_of_birth}"
