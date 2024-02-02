@@ -47,3 +47,14 @@ class Player(models.Model):
 
     def __str__(self):
         return f"{self.name} - DOB: {self.date_of_birth}"
+
+
+class Game(models.Model):
+    date = models.DateTimeField(blank=False, null=False)
+    home_team = models.ForeignKey('Team', related_name='home_games', on_delete=models.CASCADE)
+    away_team = models.ForeignKey('Team', related_name='away_games', on_delete=models.CASCADE)
+    home_team_score = models.IntegerField(blank=True, null=True)
+    away_team_score = models.IntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.away_team} @ {self.home_team} - {self.date}"
