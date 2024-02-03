@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from api.models import Team, Coach, Player
+from api.models import Team, Coach, Player, Game
 from api.validators import (
     validate_alpha_and_title,
     validate_future_date,
@@ -93,10 +93,11 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     players = serializers.SerializerMethodField()
     coach = serializers.SerializerMethodField()
+    games = serializers.SerializerMethodField()
 
     class Meta:
         model = Team
-        fields = ['url', 'id', 'name_abbreviation', 'full_name', 'coach', 'players']
+        fields = ['url', 'id', 'name_abbreviation', 'full_name', 'coach', 'players', 'games']
 
     def get_coach(self, obj):
         coach_instance = obj.coach
@@ -122,6 +123,23 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             for player_data in players_data
         ]
 
+    def get_games(self, obj):
+        games_queryset = obj.home_games.all() | obj.away_games.all()
+        games_data = GameSerializer(games_queryset, many=True, context=self.context).data
+
+        return [
+            {
+                'url': game_data.get('url', None),
+                'id': game_data.get('id', None),
+                'info': (
+                    f"{game_data.get('away_team_name_abbreviation', None)} @ "
+                    f"{game_data.get('home_team_name_abbreviation', None)} - "
+                    f"{game_data.get('date', None)}",
+                )
+            }
+            for game_data in games_data
+        ]
+
     def validate_name_abbreviation(self, value):
         if not len(value) == 3:
             raise serializers.ValidationError('Team name abbreviation must contain 3 letters.')
@@ -137,3 +155,22 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         if not value.istitle():
             raise serializers.ValidationError('Team name should be capitalized.')
         return value
+
+
+class GameSerializer(serializers.HyperlinkedModelSerializer):
+    home_team_name_abbreviation = serializers.ReadOnlyField(source='home_team.name_abbreviation')
+    away_team_name_abbreviation = serializers.ReadOnlyField(source='away_team.name_abbreviation')
+
+    class Meta:
+        model = Game
+        fields = [
+            'url',
+            'id',
+            'date',
+            'home_team',
+            'home_team_name_abbreviation',
+            'away_team',
+            'away_team_name_abbreviation',
+            'home_team_score',
+            'away_team_score',
+        ]
