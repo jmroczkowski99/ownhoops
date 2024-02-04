@@ -9,11 +9,11 @@ from api.validators import (
 
 
 class CoachSerializer(serializers.HyperlinkedModelSerializer):
-    current_team_name_abbreviation = serializers.ReadOnlyField(source='current_team.name_abbreviation')
+    team_name_abbreviation = serializers.ReadOnlyField(source='team.name_abbreviation')
 
     class Meta:
         model = Coach
-        fields = ['url', 'id', 'name', 'date_of_birth', 'current_team', 'current_team_name_abbreviation']
+        fields = ['url', 'id', 'name', 'date_of_birth', 'team', 'team_name_abbreviation']
 
     def validate_name(self, value):
         return validate_alpha_and_title(value, 'Name should only contain letters.', 'Name should be capitalized.')
