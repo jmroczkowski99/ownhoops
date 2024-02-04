@@ -9,15 +9,11 @@ from api.validators import (
 
 
 class CoachSerializer(serializers.HyperlinkedModelSerializer):
-    current_team_name_abbreviation = serializers.SerializerMethodField()
+    current_team_name_abbreviation = serializers.ReadOnlyField(source='current_team.name_abbreviation')
 
     class Meta:
         model = Coach
         fields = ['url', 'id', 'name', 'date_of_birth', 'current_team', 'current_team_name_abbreviation']
-
-    def get_current_team_name_abbreviation(self, obj):
-        team_instance = obj.current_team
-        return team_instance.name_abbreviation
 
     def validate_name(self, value):
         return validate_alpha_and_title(value, 'Name should only contain letters.', 'Name should be capitalized.')
@@ -27,7 +23,7 @@ class CoachSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class PlayerSerializer(serializers.HyperlinkedModelSerializer):
-    team_name_abbreviation = serializers.SerializerMethodField()
+    team_name_abbreviation = serializers.ReadOnlyField(source='team.name_abbreviation')
 
     class Meta:
         model = Player
@@ -60,10 +56,6 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
                 message='This jersey number is already assigned to a player in this team.'
             )
         ]
-
-    def get_team_name_abbreviation(self, obj):
-        team_instance = obj.team
-        return team_instance.name_abbreviation
 
     def validate_name(self, value):
         return validate_alpha_and_title(value, 'Name should only contain letters.', 'Name should be capitalized.')
