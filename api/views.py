@@ -18,7 +18,7 @@ class CoachViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         team_id = self.kwargs.get('team_pk')
         if team_id:
-            return Coach.objects.filter(current_team_id=team_id)
+            return Coach.objects.filter(team_id=team_id)
         else:
             return Coach.objects.all()
 
