@@ -58,3 +58,23 @@ class Game(models.Model):
 
     def __str__(self):
         return f"{self.away_team} @ {self.home_team} - {self.date}"
+
+
+class Stats(models.Model):
+    game = models.ForeignKey('Game', related_name='stats', on_delete=models.CASCADE)
+    player = models.ForeignKey('Player', related_name='stats', on_delete=models.CASCADE)
+    field_goals_made = models.IntegerField(null=False, blank=False)
+    field_goals_attempted = models.IntegerField(null=False, blank=False)
+    three_pointers_made = models.IntegerField(null=False, blank=False)
+    three_pointers_attempted = models.IntegerField(null=False, blank=False)
+    free_throws_made = models.IntegerField(null=False, blank=False)
+    free_throws_attempted = models.IntegerField(null=False, blank=False)
+    defensive_rebounds = models.IntegerField(null=False, blank=False)
+    offensive_rebounds = models.IntegerField(null=False, blank=False)
+    assists = models.IntegerField(null=False, blank=False)
+    steals = models.IntegerField(null=False, blank=False)
+    blocks = models.IntegerField(null=False, blank=False)
+    turnovers = models.IntegerField(null=False, blank=False)
+
+    def __str__(self):
+        return f"{self.game} - {self.player} stats"
