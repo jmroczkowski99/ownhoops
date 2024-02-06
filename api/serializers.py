@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from api.models import Team, Coach, Player, Game
+from api.models import Team, Coach, Player, Game, Stats
 from api.validators import (
     validate_alpha_and_title,
     validate_future_date,
     validate_positive
 )
+from django.urls import reverse
 
 
 class CoachSerializer(serializers.HyperlinkedModelSerializer):
@@ -24,6 +25,7 @@ class CoachSerializer(serializers.HyperlinkedModelSerializer):
 
 class PlayerSerializer(serializers.HyperlinkedModelSerializer):
     team_name_abbreviation = serializers.ReadOnlyField(source='team.name_abbreviation')
+    all_stats = serializers.SerializerMethodField()
 
     class Meta:
         model = Player
@@ -48,6 +50,7 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
             'field_goal_percentage',
             'three_point_field_goal_percentage',
             'free_throw_percentage',
+            'all_stats',
         ]
         validators = [
             UniqueTogetherValidator(
@@ -56,6 +59,10 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
                 message='This jersey number is already assigned to a player in this team.'
             )
         ]
+
+    def get_all_stats(self, obj):
+        stats_url = reverse('player-detail', args=[obj.id]) + 'stats/'
+        return self.context['request'].build_absolute_uri(stats_url)
 
     def validate_name(self, value):
         return validate_alpha_and_title(value, 'Name should only contain letters.', 'Name should be capitalized.')
@@ -126,8 +133,9 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
                 'info': (
                     f"{game_data.get('away_team_name_abbreviation', None)} @ "
                     f"{game_data.get('home_team_name_abbreviation', None)} - "
-                    f"{game_data.get('date', None)}",
-                )
+                    f"{game_data.get('date', None)}"
+                ),
+                'box_score': game_data.get('box_score', None),
             }
             for game_data in games_data
         ]
@@ -150,8 +158,10 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class GameSerializer(serializers.HyperlinkedModelSerializer):
+    game_info = serializers.SerializerMethodField()
     home_team_name_abbreviation = serializers.ReadOnlyField(source='home_team.name_abbreviation')
     away_team_name_abbreviation = serializers.ReadOnlyField(source='away_team.name_abbreviation')
+    box_score = serializers.SerializerMethodField()
 
     class Meta:
         model = Game
@@ -159,10 +169,93 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
             'url',
             'id',
             'date',
+            'game_info',
             'home_team',
             'home_team_name_abbreviation',
             'away_team',
             'away_team_name_abbreviation',
             'home_team_score',
             'away_team_score',
+            'box_score',
         ]
+
+    def get_game_info(self, obj):
+        away_team = obj.away_team.name_abbreviation
+        home_team = obj.home_team.name_abbreviation
+        game_date = obj.date
+        return f"{away_team} @ {home_team} - {game_date}"
+
+    def get_box_score(self, obj):
+        stats_url = reverse('game-detail', args=[obj.id]) + 'stats/'
+        return self.context['request'].build_absolute_uri(stats_url)
+
+
+class StatsSerializer(serializers.HyperlinkedModelSerializer):
+    game_info = serializers.SerializerMethodField()
+    player_name = serializers.ReadOnlyField(source='player.name')
+    field_goal_percentage = serializers.SerializerMethodField()
+    three_point_percentage = serializers.SerializerMethodField()
+    free_throw_percentage = serializers.SerializerMethodField()
+    points = serializers.SerializerMethodField()
+    rebounds = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Stats
+        fields = [
+            'url',
+            'id',
+            'game',
+            'game_info',
+            'player',
+            'player_name',
+            'field_goals_made',
+            'field_goals_attempted',
+            'field_goal_percentage',
+            'three_pointers_made',
+            'three_pointers_attempted',
+            'three_point_percentage',
+            'free_throws_made',
+            'free_throws_attempted',
+            'free_throw_percentage',
+            'offensive_rebounds',
+            'defensive_rebounds',
+            'rebounds',
+            'assists',
+            'steals',
+            'blocks',
+            'turnovers',
+            'points',
+        ]
+
+    def get_game_info(self, obj):
+        away_team = obj.game.away_team.name_abbreviation
+        home_team = obj.game.home_team.name_abbreviation
+        game_date = obj.game.date
+        return f"{away_team} @ {home_team} - {game_date}"
+
+    def get_points(self, obj):
+        one_pointers = obj.free_throws_made
+        two_pointers = obj.field_goals_made - obj.three_pointers_made
+        three_pointers = obj.three_pointers_made
+        return one_pointers + (two_pointers*2) + (three_pointers*3)
+
+    def get_rebounds(self, obj):
+        return obj.offensive_rebounds + obj.defensive_rebounds
+
+    def get_field_goal_percentage(self, obj):
+        if obj.field_goals_attempted == 0:
+            return 0
+        else:
+            return round(float(obj.field_goals_made/obj.field_goals_attempted) * 100, 2)
+
+    def get_three_point_percentage(self, obj):
+        if obj.three_pointers_attempted == 0:
+            return 0
+        else:
+            return round(float(obj.three_pointers_made/obj.three_pointers_attempted) * 100, 2)
+
+    def get_free_throw_percentage(self, obj):
+        if obj.free_throws_attempted == 0:
+            return 0
+        else:
+            return round(float(obj.free_throws_made/obj.free_throws_attempted) * 100, 2)

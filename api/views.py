@@ -1,5 +1,5 @@
-from api.models import Team, Coach, Player, Game
-from api.serializers import TeamSerializer, CoachSerializer, PlayerSerializer, GameSerializer
+from api.models import Team, Coach, Player, Game, Stats
+from api.serializers import TeamSerializer, CoachSerializer, PlayerSerializer, GameSerializer, StatsSerializer
 from rest_framework import viewsets
 from rest_framework import permissions
 
@@ -48,3 +48,21 @@ class GameViewSet(viewsets.ModelViewSet):
             return team_games
         else:
             return Game.objects.all()
+
+
+class StatsViewSet(viewsets.ModelViewSet):
+    queryset = Stats.objects.all()
+    serializer_class = StatsSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        game_id = self.kwargs.get('game_pk')
+        player_id = self.kwargs.get('player_pk')
+        if game_id:
+            game_stats = Stats.objects.filter(game_id=game_id).order_by('player__team')
+            return game_stats
+        elif player_id:
+            game_stats = Stats.objects.filter(player_id=player_id)
+            return game_stats
+        else:
+            return Stats.objects.all()
