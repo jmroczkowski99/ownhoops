@@ -161,6 +161,8 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
     game_info = serializers.SerializerMethodField()
     home_team_name_abbreviation = serializers.ReadOnlyField(source='home_team.name_abbreviation')
     away_team_name_abbreviation = serializers.ReadOnlyField(source='away_team.name_abbreviation')
+    home_team_score = serializers.SerializerMethodField()
+    away_team_score = serializers.SerializerMethodField()
     box_score = serializers.SerializerMethodField()
 
     class Meta:
@@ -184,6 +186,22 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
         home_team = obj.home_team.name_abbreviation
         game_date = obj.date
         return f"{away_team} @ {home_team} - {game_date}"
+
+    def get_home_team_score(self, obj):
+        home_team_stats = Stats.objects.filter(game=obj, player__team=obj.home_team)
+        total_points = sum(
+            StatsSerializer(stats, context=self.context).data.get('points', 0)
+            for stats in home_team_stats
+        )
+        return total_points
+
+    def get_away_team_score(self, obj):
+        away_team_stats = Stats.objects.filter(game=obj, player__team=obj.away_team)
+        total_points = sum(
+            StatsSerializer(stats, context=self.context).data.get('points', 0)
+            for stats in away_team_stats
+        )
+        return total_points
 
     def get_box_score(self, obj):
         stats_url = reverse('game-detail', args=[obj.id]) + 'stats/'
