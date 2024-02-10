@@ -25,6 +25,17 @@ class CoachSerializer(serializers.HyperlinkedModelSerializer):
 
 class PlayerSerializer(serializers.HyperlinkedModelSerializer):
     team_name_abbreviation = serializers.ReadOnlyField(source='team.name_abbreviation')
+    points_per_game = serializers.SerializerMethodField()
+    offensive_rebounds_per_game = serializers.SerializerMethodField()
+    defensive_rebounds_per_game = serializers.SerializerMethodField()
+    rebounds_per_game = serializers.SerializerMethodField()
+    assists_per_game = serializers.SerializerMethodField()
+    steals_per_game = serializers.SerializerMethodField()
+    blocks_per_game = serializers.SerializerMethodField()
+    turnovers_per_game = serializers.SerializerMethodField()
+    field_goal_percentage = serializers.SerializerMethodField()
+    three_point_field_goal_percentage = serializers.SerializerMethodField()
+    free_throw_percentage = serializers.SerializerMethodField()
     all_stats = serializers.SerializerMethodField()
 
     class Meta:
@@ -42,6 +53,8 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
             'weight',
             'jersey_number',
             'points_per_game',
+            'offensive_rebounds_per_game',
+            'defensive_rebounds_per_game',
             'rebounds_per_game',
             'assists_per_game',
             'steals_per_game',
@@ -59,6 +72,66 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
                 message='This jersey number is already assigned to a player in this team.'
             )
         ]
+
+    def calculate_stat_per_game(self, obj, stat_name):
+        player_stats = Stats.objects.filter(player=obj, player__team=obj.team)
+        total_stat = sum(
+            StatsSerializer(stats, context=self.context).data.get(stat_name, 0)
+            for stats in player_stats
+        )
+        number_of_games = player_stats.count()
+        if number_of_games == 0:
+            return 0.0
+        else:
+            return round(total_stat/number_of_games, 2)
+
+    def calculate_stat_percentage(self, obj, stat_name_made, stat_name_attempts):
+        player_stats = Stats.objects.filter(player=obj, player__team=obj.team)
+        stat_made = sum(
+            StatsSerializer(stats, context=self.context).data.get(stat_name_made, 0)
+            for stats in player_stats
+        )
+        stat_attempted = sum(
+            StatsSerializer(stats, context=self.context).data.get(stat_name_attempts, 0)
+            for stats in player_stats
+        )
+        if stat_attempted == 0:
+            return 0.0
+        else:
+            return round((stat_made/stat_attempted) * 100, 2)
+
+    def get_points_per_game(self, obj):
+        return self.calculate_stat_per_game(obj, 'points')
+
+    def get_offensive_rebounds_per_game(self, obj):
+        return self.calculate_stat_per_game(obj, 'offensive_rebounds')
+
+    def get_defensive_rebounds_per_game(self, obj):
+        return self.calculate_stat_per_game(obj, 'defensive_rebounds')
+
+    def get_rebounds_per_game(self, obj):
+        return self.calculate_stat_per_game(obj, 'rebounds')
+
+    def get_assists_per_game(self, obj):
+        return self.calculate_stat_per_game(obj, 'assists')
+
+    def get_steals_per_game(self, obj):
+        return self.calculate_stat_per_game(obj, 'steals')
+
+    def get_blocks_per_game(self, obj):
+        return self.calculate_stat_per_game(obj, 'blocks')
+
+    def get_turnovers_per_game(self, obj):
+        return self.calculate_stat_per_game(obj, 'turnovers')
+
+    def get_field_goal_percentage(self, obj):
+        return self.calculate_stat_percentage(obj, 'field_goals_made', 'field_goals_attempted')
+
+    def get_three_point_field_goal_percentage(self, obj):
+        return self.calculate_stat_percentage(obj, 'three_pointers_made', 'three_pointers_attempted')
+
+    def get_free_throw_percentage(self, obj):
+        return self.calculate_stat_percentage(obj, 'free_throws_made', 'free_throws_attempted')
 
     def get_all_stats(self, obj):
         stats_url = reverse('player-detail', args=[obj.id]) + 'stats/'
@@ -264,16 +337,16 @@ class StatsSerializer(serializers.HyperlinkedModelSerializer):
         if obj.field_goals_attempted == 0:
             return 0
         else:
-            return round(float(obj.field_goals_made/obj.field_goals_attempted) * 100, 2)
+            return round((obj.field_goals_made/obj.field_goals_attempted) * 100, 2)
 
     def get_three_point_percentage(self, obj):
         if obj.three_pointers_attempted == 0:
             return 0
         else:
-            return round(float(obj.three_pointers_made/obj.three_pointers_attempted) * 100, 2)
+            return round((obj.three_pointers_made/obj.three_pointers_attempted) * 100, 2)
 
     def get_free_throw_percentage(self, obj):
         if obj.free_throws_attempted == 0:
             return 0
         else:
-            return round(float(obj.free_throws_made/obj.free_throws_attempted) * 100, 2)
+            return round((obj.free_throws_made/obj.free_throws_attempted) * 100, 2)
