@@ -35,15 +35,6 @@ class Player(models.Model):
     height = models.IntegerField(null=False, blank=False)
     weight = models.IntegerField(null=False, blank=False)
     jersey_number = models.IntegerField(null=True, blank=True)
-    points_per_game = models.FloatField(null=False, blank=False)
-    rebounds_per_game = models.FloatField(null=False, blank=False)
-    assists_per_game = models.FloatField(null=False, blank=False)
-    steals_per_game = models.FloatField(null=False, blank=False)
-    blocks_per_game = models.FloatField(null=False, blank=False)
-    turnovers_per_game = models.FloatField(null=False, blank=False)
-    field_goal_percentage = models.FloatField(null=False, blank=False)
-    three_point_field_goal_percentage = models.FloatField(null=False, blank=False)
-    free_throw_percentage = models.FloatField(null=False, blank=False)
 
     def __str__(self):
         return f"{self.name} - DOB: {self.date_of_birth}"
