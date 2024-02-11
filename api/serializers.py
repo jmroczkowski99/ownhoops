@@ -1,12 +1,17 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+from django.db import models
+from django.db.models import Q
 from api.models import Team, Coach, Player, Game, Stats
 from api.validators import (
     validate_alpha_and_title,
     validate_future_date,
-    validate_positive
+    validate_positive,
+    validate_over_eighteen,
+    validate_nonnegative,
 )
 from django.urls import reverse
+import datetime
 
 
 class CoachSerializer(serializers.HyperlinkedModelSerializer):
@@ -20,7 +25,7 @@ class CoachSerializer(serializers.HyperlinkedModelSerializer):
         return validate_alpha_and_title(value, 'Name should only contain letters.', 'Name should be capitalized.')
 
     def validate_date_of_birth(self, value):
-        return validate_future_date(value, 'Birth date cannot be in the future.')
+        return validate_over_eighteen(value, 'Coach has to be at least 18 years old.')
 
 
 class PlayerSerializer(serializers.HyperlinkedModelSerializer):
@@ -80,6 +85,7 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
             for stats in player_stats
         )
         number_of_games = player_stats.count()
+
         if number_of_games == 0:
             return 0.0
         else:
@@ -95,6 +101,7 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
             StatsSerializer(stats, context=self.context).data.get(stat_name_attempts, 0)
             for stats in player_stats
         )
+
         if stat_attempted == 0:
             return 0.0
         else:
@@ -144,10 +151,12 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
         return validate_future_date(value, 'Birth date cannot be in the future.')
 
     def validate_country(self, value):
+        allowed_uppercase = ['USA', 'DRC']
         return validate_alpha_and_title(
             value,
             'Country name should only contain letters.',
-            'Country name should be capitalized.'
+            'Country name should be capitalized.',
+            allowed_uppercase,
         )
 
     def validate_height(self, value):
@@ -159,6 +168,7 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
     def validate_jersey_number(self, value):
         if not 0 <= value <= 99:
             raise serializers.ValidationError('Invalid jersey number. Only numbers 0-99 are allowed.')
+        
         return value
 
 
@@ -183,7 +193,6 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     def get_players(self, obj):
         players_queryset = obj.players.all()
         players_data = PlayerSerializer(players_queryset, many=True, context=self.context).data
-
         return [
             {
                 'url': player_data.get('url', None),
@@ -198,7 +207,6 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     def get_games(self, obj):
         games_queryset = obj.home_games.all() | obj.away_games.all()
         games_data = GameSerializer(games_queryset, many=True, context=self.context).data
-
         return [
             {
                 'url': game_data.get('url', None),
@@ -216,17 +224,22 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     def validate_name_abbreviation(self, value):
         if not len(value) == 3:
             raise serializers.ValidationError('Team name abbreviation must contain 3 letters.')
+
         if not value.replace(' ', '').isalpha():
             raise serializers.ValidationError('Team name abbreviation can contain only letters.')
+
         if not value.isupper():
             raise serializers.ValidationError('Team name abbreviation should be uppercase.')
+
         return value
 
     def validate_full_name(self, value):
         if not value.replace(' ', '').isalnum():
             raise serializers.ValidationError('Team name can contain only letters and numbers.')
+
         if not value.istitle():
             raise serializers.ValidationError('Team name should be capitalized.')
+
         return value
 
 
@@ -279,6 +292,35 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
     def get_box_score(self, obj):
         stats_url = reverse('game-detail', args=[obj.id]) + 'stats/'
         return self.context['request'].build_absolute_uri(stats_url)
+
+    def validate(self, data):
+        home_team = data['home_team']
+        away_team = data['away_team']
+        date = data['date']
+
+        if home_team == away_team:
+            raise serializers.ValidationError('Home team and Away team cannot be the same.')
+
+        if Game.objects.filter(
+            (models.Q(home_team=home_team, away_team=away_team) |
+             models.Q(home_team=away_team, away_team=home_team)),
+            date=date
+        ).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError('Cannot have two games between the same teams at the same time.')
+
+        if Game.objects.filter(
+                Q(home_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(home_team=home_team, date__lte=date + datetime.timedelta(hours=2))
+        ).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError('Home team has another game around the same time.')
+
+        if Game.objects.filter(
+                Q(away_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(away_team=away_team, date__lte=date + datetime.timedelta(hours=2))
+        ).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError('Away team has another game around the same time.')
+
+        return data
 
 
 class StatsSerializer(serializers.HyperlinkedModelSerializer):
@@ -350,3 +392,72 @@ class StatsSerializer(serializers.HyperlinkedModelSerializer):
             return 0
         else:
             return round((obj.free_throws_made/obj.free_throws_attempted) * 100, 2)
+
+    def validate(self, data):
+        player = data['player']
+        game = data['game']
+        fgm = data['field_goals_made']
+        fga = data['field_goals_attempted']
+        tpm = data['three_pointers_made']
+        tpa = data['three_pointers_attempted']
+        ftm = data['free_throws_made']
+        fta = data['free_throws_attempted']
+
+        if Stats.objects.filter(game=game, player=player).exclude(
+                pk=self.instance.pk if self.instance else None
+        ).exists():
+            raise serializers.ValidationError('Cannot have two instances of stats of the same player in one game.')
+
+        if player.team != game.home_team and player.team != game.away_team:
+            raise serializers.ValidationError("This player is not in the team participating in the game.")
+
+        if fgm > fga or tpm > tpa or ftm > fta:
+            raise serializers.ValidationError(
+                "The number of shots made can't be greater than the number of shots attempted."
+            )
+
+        if tpa > fga:
+            raise serializers.ValidationError(
+                "The number of three pointers attempted can't be greater than the number of field goals attempted."
+            )
+
+        if tpm > fgm:
+            raise serializers.ValidationError(
+                "The number of three pointers made can't be greater than the number of field goals made."
+            )
+
+    def validate_field_goals_made(self, value):
+        return validate_nonnegative(value, "The number of field goals made has to be non-negative.")
+
+    def validate_field_goals_attempted(self, value):
+        return validate_nonnegative(value, "The number of field goals attempted has to be non-negative.")
+
+    def validate_three_pointers_made(self, value):
+        return validate_nonnegative(value, "The number of three pointers made has to be non-negative.")
+
+    def validate_three_pointers_attempted(self, value):
+        return validate_nonnegative(value, "The number of three pointers attempted has to be non-negative.")
+
+    def validate_free_throws_made(self, value):
+        return validate_nonnegative(value, "The number of free throws made has to be non-negative.")
+
+    def validate_free_throws_attempted(self, value):
+        return validate_nonnegative(value, "The number of free throws attempted has to be non-negative.")
+
+    def validate_offensive_rebounds(self, value):
+        return validate_nonnegative(value, "The number of offensive rebounds has to be non-negative.")
+
+    def validate_defensive_rebounds(self, value):
+        return validate_nonnegative(value, "The number of defensive rebounds has to be non-negative.")
+
+    def validate_assists(self, value):
+        return validate_nonnegative(value, "The number of assists has to be non-negative.")
+
+    def validate_steals(self, value):
+        return validate_nonnegative(value, "The number of steals has to be non-negative.")
+
+    def validate_blocks(self, value):
+        return validate_nonnegative(value, "The number of blocks has to be non-negative.")
+
+    def validate_turnovers(self, value):
+        return validate_nonnegative(value, "The number of turnovers has to be non-negative.")
