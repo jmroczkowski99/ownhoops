@@ -434,6 +434,8 @@ class StatsSerializer(serializers.HyperlinkedModelSerializer):
                 "The number of three pointers made can't be greater than the number of field goals made."
             )
 
+        return data
+
     def validate_field_goals_made(self, value):
         return validate_nonnegative(value, "The number of field goals made has to be non-negative.")
 
