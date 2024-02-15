@@ -21,6 +21,14 @@ class CoachSerializer(serializers.HyperlinkedModelSerializer):
         model = Coach
         fields = ['url', 'id', 'name', 'date_of_birth', 'team', 'team_name_abbreviation']
 
+    def validate(self, data):
+        team = data.get('team')
+
+        if team and Coach.objects.filter(team=team).exclude(pk=self.instance if self.instance else None).exists():
+            raise serializers.ValidationError("This team already has a coach.")
+
+        return data
+
     def validate_name(self, value):
         return validate_alpha_and_title(value, 'Name should only contain letters.', 'Name should be capitalized.')
 
@@ -182,7 +190,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'id', 'name_abbreviation', 'full_name', 'coach', 'players', 'games']
 
     def get_coach(self, obj):
-        coach_instance = obj.coach
+        coach_instance = obj.coach.first()
         coach_data = CoachSerializer(coach_instance, context=self.context).data
         return {
             'url': coach_data.get('url', None),
