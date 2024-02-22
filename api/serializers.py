@@ -317,14 +317,18 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError('Cannot have two games between the same teams at the same time.')
 
         if Game.objects.filter(
-                Q(home_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
-                Q(home_team=home_team, date__lte=date + datetime.timedelta(hours=2))
+            (Q(home_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(home_team=home_team, date__lte=date + datetime.timedelta(hours=2))) |
+            (Q(away_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(away_team=home_team, date__lte=date + datetime.timedelta(hours=2)))
         ).exclude(pk=self.instance.pk if self.instance else None).exists():
             raise serializers.ValidationError('Home team has another game around the same time.')
 
         if Game.objects.filter(
-                Q(away_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
-                Q(away_team=away_team, date__lte=date + datetime.timedelta(hours=2))
+            (Q(away_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(away_team=away_team, date__lte=date + datetime.timedelta(hours=2))) |
+            (Q(home_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(home_team=away_team, date__lte=date + datetime.timedelta(hours=2)))
         ).exclude(pk=self.instance.pk if self.instance else None).exists():
             raise serializers.ValidationError('Away team has another game around the same time.')
 
