@@ -46,3 +46,15 @@ def validate_nonnegative(value, error_message):
         raise serializers.ValidationError(error_message)
 
     return value
+
+
+def validate_title_or_number_start(value, error_message):
+    words = value.split()
+
+    for word in words:
+        if word[0].islower():
+            raise serializers.ValidationError(error_message)
+
+        for char in word[1:]:
+            if char.isupper():
+                raise serializers.ValidationError(error_message)
