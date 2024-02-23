@@ -9,6 +9,7 @@ from api.validators import (
     validate_positive,
     validate_over_eighteen,
     validate_nonnegative,
+    validate_title_or_number_start,
 )
 from django.urls import reverse
 import datetime
@@ -245,8 +246,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         if not value.replace(' ', '').isalnum():
             raise serializers.ValidationError('Team name can contain only letters and numbers.')
 
-        if not value.istitle():
-            raise serializers.ValidationError('Team name should be capitalized.')
+        validate_title_or_number_start(value, 'Team name should be capitalized.')
 
         return value
 
