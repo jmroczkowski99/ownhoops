@@ -5,6 +5,245 @@ from api.models import Coach, Player, Game, Stats
 from datetime import date, timedelta
 
 
+class TestTeamSerializer:
+    @pytest.mark.django_db
+    def test_valid_empty_team(self, rf):
+        request = rf.get('/dummy-url/')
+
+        data = {
+            'name_abbreviation': 'TES',
+            'full_name': 'Test Team',
+        }
+
+        serializer = TeamSerializer(data=data, context={'request': request})
+        assert serializer.is_valid()
+        assert serializer.save()
+        assert serializer.data['name_abbreviation'] == data['name_abbreviation']
+        assert serializer.data['full_name'] == data['full_name']
+        assert serializer.data['coach'] == {'id': None, 'name': '', 'url': None}
+        assert serializer.data['players'] == []
+        assert serializer.data['games'] == []
+
+    @pytest.mark.django_db
+    def test_valid_empty_team_numbers_in_name(self, rf):
+        request = rf.get('/dummy-url/')
+
+        data = {
+            'name_abbreviation': 'TES',
+            'full_name': 'Test T3am',
+        }
+
+        serializer = TeamSerializer(data=data, context={'request': request})
+        assert serializer.is_valid()
+        assert serializer.save()
+        assert serializer.data['name_abbreviation'] == data['name_abbreviation']
+        assert serializer.data['full_name'] == data['full_name']
+        assert serializer.data['coach'] == {'id': None, 'name': '', 'url': None}
+        assert serializer.data['players'] == []
+        assert serializer.data['games'] == []
+
+    @pytest.mark.django_db
+    def test_valid_empty_team_name_starting_with_numbers(self, rf):
+        request = rf.get('/dummy-url/')
+
+        data = {
+            'name_abbreviation': 'PHI',
+            'full_name': 'Philadelphia 76ers',
+        }
+
+        serializer = TeamSerializer(data=data, context={'request': request})
+        assert serializer.is_valid()
+        assert serializer.save()
+        assert serializer.data['name_abbreviation'] == data['name_abbreviation']
+        assert serializer.data['full_name'] == data['full_name']
+        assert serializer.data['coach'] == {'id': None, 'name': '', 'url': None}
+        assert serializer.data['players'] == []
+        assert serializer.data['games'] == []
+
+    @pytest.mark.django_db
+    def test_valid_team(self, create_first_team, create_second_team, rf):
+        request = rf.get('/dummy-url/')
+
+        team_data = {
+            'name_abbreviation': 'TES',
+            'full_name': 'Test Team',
+        }
+
+        serializer = TeamSerializer(data=team_data, context={'request': request})
+        assert serializer.is_valid(), serializer.errors
+        team = serializer.save()
+
+        coach_data = {
+            'name': 'Valid Coach',
+            'date_of_birth': '1980-01-01',
+            'team': team,
+        }
+
+        player_one_data = {
+            'name': 'Valid Player',
+            'date_of_birth': '1980-01-01',
+            'team': team,
+            'country': 'USA',
+            'position': 'SF',
+            'height': 201,
+            'weight': 100,
+            'jersey_number': 22,
+        }
+
+        player_two_data = {
+            'name': 'Valid Pllayer',
+            'date_of_birth': '1981-01-01',
+            'team': team,
+            'country': 'Poland',
+            'position': 'PG',
+            'height': 202,
+            'weight': 103,
+            'jersey_number': 11,
+        }
+
+        game_one_data = {
+            'date': '2024-01-02 20:00:00',
+            'home_team': team,
+            'away_team': create_first_team,
+        }
+
+        game_two_data = {
+            'date': '2024-02-01 20:00:00',
+            'home_team': create_second_team,
+            'away_team': team,
+        }
+
+        Coach.objects.create(**coach_data)
+        Player.objects.create(**player_one_data)
+        Player.objects.create(**player_two_data)
+        Game.objects.create(**game_one_data)
+        Game.objects.create(**game_two_data)
+
+        team.refresh_from_db()
+
+        assert serializer.data['name_abbreviation'] == team_data['name_abbreviation']
+        assert serializer.data['full_name'] == team_data['full_name']
+        assert serializer.data['coach'] == {'id': 1, 'name': coach_data['name'], 'url': 'http://testserver/coaches/1/'}
+        assert serializer.data['players'] == [
+            {
+                'id': 1,
+                'name': player_one_data['name'],
+                'position': player_one_data['position'],
+                'jersey_number': player_one_data['jersey_number'],
+                'url': 'http://testserver/players/1/'
+            },
+            {
+                'id': 2,
+                'name': player_two_data['name'],
+                'position': player_two_data['position'],
+                'jersey_number': player_two_data['jersey_number'],
+                'url': 'http://testserver/players/2/'
+            }
+        ]
+        assert serializer.data['games'] == [
+            {
+                'url': 'http://testserver/games/1/',
+                'id': 1,
+                'info': f'{game_one_data["away_team"]} @ {game_one_data["home_team"]} - 2024-01-02T20:00:00Z',
+                'box_score': 'http://testserver/games/1/stats/',
+            },
+            {
+                'url': 'http://testserver/games/2/',
+                'id': 2,
+                'info': f'{game_two_data["away_team"]} @ {game_two_data["home_team"]} - 2024-02-01T20:00:00Z',
+                'box_score': 'http://testserver/games/2/stats/',
+            }
+        ]
+
+    @pytest.mark.django_db
+    def test_team_invalid_name_abbreviation_too_short(self):
+        data = {
+            'name_abbreviation': 'TE',
+            'full_name': 'Test Team',
+        }
+
+        serializer = TeamSerializer(data=data)
+        assert not serializer.is_valid()
+        assert 'Team name abbreviation must contain 3 letters.' in serializer.errors['name_abbreviation']
+
+    @pytest.mark.django_db
+    def test_team_invalid_name_abbreviation_too_long(self):
+        data = {
+            'name_abbreviation': 'TEST',
+            'full_name': 'Test Team',
+        }
+
+        serializer = TeamSerializer(data=data)
+        assert not serializer.is_valid()
+        assert 'Ensure this field has no more than 3 characters.' in serializer.errors['name_abbreviation']
+
+    @pytest.mark.django_db
+    def test_team_invalid_name_abbreviation_numbers(self):
+        data = {
+            'name_abbreviation': 'T35',
+            'full_name': 'Test Team',
+        }
+
+        serializer = TeamSerializer(data=data)
+        assert not serializer.is_valid()
+        assert 'Team name abbreviation can contain only letters.' in serializer.errors['name_abbreviation']
+
+    @pytest.mark.django_db
+    def test_team_invalid_name_abbreviation_special_chars(self):
+        data = {
+            'name_abbreviation': 'T/E',
+            'full_name': 'Test Team',
+        }
+
+        serializer = TeamSerializer(data=data)
+        assert not serializer.is_valid()
+        assert 'Team name abbreviation can contain only letters.' in serializer.errors['name_abbreviation']
+
+    @pytest.mark.django_db
+    def test_team_invalid_name_abbreviation_not_uppercase(self):
+        data = {
+            'name_abbreviation': 'Tes',
+            'full_name': 'Test Team',
+        }
+
+        serializer = TeamSerializer(data=data)
+        assert not serializer.is_valid()
+        assert 'Team name abbreviation should be uppercase.' in serializer.errors['name_abbreviation']
+
+    @pytest.mark.django_db
+    def test_team_invalid_full_name_special_chars(self):
+        data = {
+            'name_abbreviation': 'TES',
+            'full_name': 'Test Te@m',
+        }
+
+        serializer = TeamSerializer(data=data)
+        assert not serializer.is_valid()
+        assert 'Team name can contain only letters and numbers.' in serializer.errors['full_name']
+
+    @pytest.mark.django_db
+    def test_team_invalid_full_name_not_capitalized(self):
+        data = {
+            'name_abbreviation': 'TES',
+            'full_name': 'test Team',
+        }
+
+        serializer = TeamSerializer(data=data)
+        assert not serializer.is_valid()
+        assert 'Team name should be capitalized.' in serializer.errors['full_name']
+
+    @pytest.mark.django_db
+    def test_team_invalid_full_name_all_caps(self):
+        data = {
+            'name_abbreviation': 'TES',
+            'full_name': 'TEST TEAM',
+        }
+
+        serializer = TeamSerializer(data=data)
+        assert not serializer.is_valid()
+        assert 'Team name should be capitalized.' in serializer.errors['full_name']
+
+
 class TestCoachSerializer:
     @pytest.mark.django_db
     def test_valid_coach(self, create_first_team, rf):
@@ -426,252 +665,13 @@ class TestPlayerSerializer:
         assert 'Invalid jersey number. Only numbers 0-99 are allowed.' in serializer.errors['jersey_number']
 
 
-class TestTeamSerializer:
-    @pytest.mark.django_db
-    def test_valid_empty_team(self, rf):
-        request = rf.get('/dummy-url/')
-
-        data = {
-            'name_abbreviation': 'TES',
-            'full_name': 'Test Team',
-        }
-
-        serializer = TeamSerializer(data=data, context={'request': request})
-        assert serializer.is_valid()
-        assert serializer.save()
-        assert serializer.data['name_abbreviation'] == data['name_abbreviation']
-        assert serializer.data['full_name'] == data['full_name']
-        assert serializer.data['coach'] == {'id': None, 'name': '', 'url': None}
-        assert serializer.data['players'] == []
-        assert serializer.data['games'] == []
-
-    @pytest.mark.django_db
-    def test_valid_empty_team_numbers_in_name(self, rf):
-        request = rf.get('/dummy-url/')
-
-        data = {
-            'name_abbreviation': 'TES',
-            'full_name': 'Test T3am',
-        }
-
-        serializer = TeamSerializer(data=data, context={'request': request})
-        assert serializer.is_valid()
-        assert serializer.save()
-        assert serializer.data['name_abbreviation'] == data['name_abbreviation']
-        assert serializer.data['full_name'] == data['full_name']
-        assert serializer.data['coach'] == {'id': None, 'name': '', 'url': None}
-        assert serializer.data['players'] == []
-        assert serializer.data['games'] == []
-
-    @pytest.mark.django_db
-    def test_valid_empty_team_name_starting_with_numbers(self, rf):
-        request = rf.get('/dummy-url/')
-
-        data = {
-            'name_abbreviation': 'PHI',
-            'full_name': 'Philadelphia 76ers',
-        }
-
-        serializer = TeamSerializer(data=data, context={'request': request})
-        assert serializer.is_valid()
-        assert serializer.save()
-        assert serializer.data['name_abbreviation'] == data['name_abbreviation']
-        assert serializer.data['full_name'] == data['full_name']
-        assert serializer.data['coach'] == {'id': None, 'name': '', 'url': None}
-        assert serializer.data['players'] == []
-        assert serializer.data['games'] == []
-
-    @pytest.mark.django_db
-    def test_valid_team(self, create_first_team, create_second_team, rf):
-        request = rf.get('/dummy-url/')
-
-        team_data = {
-            'name_abbreviation': 'TES',
-            'full_name': 'Test Team',
-        }
-
-        serializer = TeamSerializer(data=team_data, context={'request': request})
-        assert serializer.is_valid(), serializer.errors
-        team = serializer.save()
-
-        coach_data = {
-            'name': 'Valid Coach',
-            'date_of_birth': '1980-01-01',
-            'team': team,
-        }
-
-        player_one_data = {
-            'name': 'Valid Player',
-            'date_of_birth': '1980-01-01',
-            'team': team,
-            'country': 'USA',
-            'position': 'SF',
-            'height': 201,
-            'weight': 100,
-            'jersey_number': 22,
-        }
-
-        player_two_data = {
-            'name': 'Valid Pllayer',
-            'date_of_birth': '1981-01-01',
-            'team': team,
-            'country': 'Poland',
-            'position': 'PG',
-            'height': 202,
-            'weight': 103,
-            'jersey_number': 11,
-        }
-
-        game_one_data = {
-            'date': "2024-01-02 20:00:00",
-            'home_team': team,
-            'away_team': create_first_team,
-        }
-
-        game_two_data = {
-            'date': "2024-02-01 20:00:00",
-            'home_team': create_second_team,
-            'away_team': team,
-        }
-
-        Coach.objects.create(**coach_data)
-        Player.objects.create(**player_one_data)
-        Player.objects.create(**player_two_data)
-        Game.objects.create(**game_one_data)
-        Game.objects.create(**game_two_data)
-
-        team.refresh_from_db()
-
-        assert serializer.data['name_abbreviation'] == team_data['name_abbreviation']
-        assert serializer.data['full_name'] == team_data['full_name']
-        assert serializer.data['coach'] == {'id': 1, 'name': coach_data['name'], 'url': 'http://testserver/coaches/1/'}
-        assert serializer.data['players'] == [
-            {
-                'id': 1,
-                'name': player_one_data['name'],
-                'position': player_one_data['position'],
-                'jersey_number': player_one_data['jersey_number'],
-                'url': 'http://testserver/players/1/'
-            },
-            {
-                'id': 2,
-                'name': player_two_data['name'],
-                'position': player_two_data['position'],
-                'jersey_number': player_two_data['jersey_number'],
-                'url': 'http://testserver/players/2/'
-            }
-        ]
-        assert serializer.data['games'] == [
-            {
-                'url': 'http://testserver/games/1/',
-                'id': 1,
-                'info': f"{game_one_data['away_team']} @ {game_one_data['home_team']} - 2024-01-02T20:00:00Z",
-                'box_score': 'http://testserver/games/1/stats/',
-            },
-            {
-                'url': 'http://testserver/games/2/',
-                'id': 2,
-                'info': f"{game_two_data['away_team']} @ {game_two_data['home_team']} - 2024-02-01T20:00:00Z",
-                'box_score': 'http://testserver/games/2/stats/',
-            }
-        ]
-
-    @pytest.mark.django_db
-    def test_team_invalid_name_abbreviation_too_short(self):
-        data = {
-            'name_abbreviation': 'TE',
-            'full_name': 'Test Team',
-        }
-
-        serializer = TeamSerializer(data=data)
-        assert not serializer.is_valid()
-        assert 'Team name abbreviation must contain 3 letters.' in serializer.errors['name_abbreviation']
-
-    @pytest.mark.django_db
-    def test_team_invalid_name_abbreviation_too_long(self):
-        data = {
-            'name_abbreviation': 'TEST',
-            'full_name': 'Test Team',
-        }
-
-        serializer = TeamSerializer(data=data)
-        assert not serializer.is_valid()
-        assert 'Ensure this field has no more than 3 characters.' in serializer.errors['name_abbreviation']
-
-    @pytest.mark.django_db
-    def test_team_invalid_name_abbreviation_numbers(self):
-        data = {
-            'name_abbreviation': 'T35',
-            'full_name': 'Test Team',
-        }
-
-        serializer = TeamSerializer(data=data)
-        assert not serializer.is_valid()
-        assert 'Team name abbreviation can contain only letters.' in serializer.errors['name_abbreviation']
-
-    @pytest.mark.django_db
-    def test_team_invalid_name_abbreviation_special_chars(self):
-        data = {
-            'name_abbreviation': 'T/E',
-            'full_name': 'Test Team',
-        }
-
-        serializer = TeamSerializer(data=data)
-        assert not serializer.is_valid()
-        assert 'Team name abbreviation can contain only letters.' in serializer.errors['name_abbreviation']
-
-    @pytest.mark.django_db
-    def test_team_invalid_name_abbreviation_not_uppercase(self):
-        data = {
-            'name_abbreviation': 'Tes',
-            'full_name': 'Test Team',
-        }
-
-        serializer = TeamSerializer(data=data)
-        assert not serializer.is_valid()
-        assert 'Team name abbreviation should be uppercase.' in serializer.errors['name_abbreviation']
-
-    @pytest.mark.django_db
-    def test_team_invalid_full_name_special_chars(self):
-        data = {
-            'name_abbreviation': 'TES',
-            'full_name': 'Test Te@m',
-        }
-
-        serializer = TeamSerializer(data=data)
-        assert not serializer.is_valid()
-        assert 'Team name can contain only letters and numbers.' in serializer.errors['full_name']
-
-    @pytest.mark.django_db
-    def test_team_invalid_full_name_not_capitalized(self):
-        data = {
-            'name_abbreviation': 'TES',
-            'full_name': 'test Team',
-        }
-
-        serializer = TeamSerializer(data=data)
-        assert not serializer.is_valid()
-        assert 'Team name should be capitalized.' in serializer.errors['full_name']
-
-    @pytest.mark.django_db
-    def test_team_invalid_full_name_all_caps(self):
-        data = {
-            'name_abbreviation': 'TES',
-            'full_name': 'TEST TEAM',
-        }
-
-        serializer = TeamSerializer(data=data)
-        assert not serializer.is_valid()
-        assert 'Team name should be capitalized.' in serializer.errors['full_name']
-
-
 class TestGameSerializer:
     @pytest.mark.django_db
     def test_valid_game(self, create_first_team, create_second_team, create_first_player, create_second_player, rf):
         request = rf.get('/dummy-url/')
 
         game_data = {
-            'date': "2024-01-02 20:00:00",
+            'date': '2024-01-02 20:00:00',
             'home_team': reverse('team-detail', args=[create_first_team.id]),
             'away_team': reverse('team-detail', args=[create_second_team.id]),
         }
@@ -723,8 +723,8 @@ class TestGameSerializer:
         assert (
                 serializer.data['game_info'] ==
                 (
-                    f"{create_second_team.name_abbreviation} @ {create_first_team.name_abbreviation} -"
-                    f" {game_data['date']}+00:00"
+                    f'{create_second_team.name_abbreviation} @ {create_first_team.name_abbreviation} -'
+                    f' {game_data["date"]}+00:00'
                 )
         )
         assert game_data['home_team'] in serializer.data['home_team']
@@ -738,7 +738,7 @@ class TestGameSerializer:
     @pytest.mark.django_db
     def test_game_same_team_twice(self, create_first_team):
         data = {
-            'date': "2024-01-02 20:00:00",
+            'date': '2024-01-02 20:00:00',
             'home_team': reverse('team-detail', args=[create_first_team.id]),
             'away_team': reverse('team-detail', args=[create_first_team.id]),
         }
@@ -750,7 +750,7 @@ class TestGameSerializer:
     @pytest.mark.django_db
     def test_game_between_the_same_teams_twice(self, create_first_team, create_second_team, create_first_game):
         data = {
-            'date': "2024-01-01",
+            'date': '2024-01-01',
             'home_team': reverse('team-detail', args=[create_first_team.id]),
             'away_team': reverse('team-detail', args=[create_second_team.id]),
         }
@@ -762,7 +762,7 @@ class TestGameSerializer:
     @pytest.mark.django_db
     def test_game_invalid_date_home_team(self, create_first_team, create_third_team, create_first_game):
         data = {
-            'date': "2024-01-01 02:00:00",
+            'date': '2024-01-01 02:00:00',
             'home_team': reverse('team-detail', args=[create_first_team.id]),
             'away_team': reverse('team-detail', args=[create_third_team.id]),
         }
@@ -774,7 +774,7 @@ class TestGameSerializer:
     @pytest.mark.django_db
     def test_game_invalid_date_away_team(self, create_first_team, create_third_team, create_first_game):
         data = {
-            'date': "2024-01-01 02:00:00",
+            'date': '2024-01-01 02:00:00',
             'home_team': reverse('team-detail', args=[create_third_team.id]),
             'away_team': reverse('team-detail', args=[create_first_team.id]),
         }
@@ -1073,7 +1073,7 @@ class TestStatsSerializer:
 
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
-        assert "The number of field goals made has to be non-negative." in serializer.errors['field_goals_made']
+        assert 'The number of field goals made has to be non-negative.' in serializer.errors['field_goals_made']
 
     @pytest.mark.django_db
     def test_stats_invalid_field_goals_attempted_negative(self, create_first_game, create_first_player):
@@ -1097,7 +1097,7 @@ class TestStatsSerializer:
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
         assert (
-                "The number of field goals attempted has to be non-negative." in
+                'The number of field goals attempted has to be non-negative.' in
                 serializer.errors['field_goals_attempted']
         )
 
@@ -1122,7 +1122,7 @@ class TestStatsSerializer:
 
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
-        assert "The number of three pointers made has to be non-negative." in serializer.errors['three_pointers_made']
+        assert 'The number of three pointers made has to be non-negative.' in serializer.errors['three_pointers_made']
 
     @pytest.mark.django_db
     def test_stats_invalid_three_pointers_attempted_negative(self, create_first_game, create_first_player):
@@ -1146,7 +1146,7 @@ class TestStatsSerializer:
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
         assert (
-                "The number of three pointers attempted has to be non-negative." in
+                'The number of three pointers attempted has to be non-negative.' in
                 serializer.errors['three_pointers_attempted']
         )
 
@@ -1171,7 +1171,7 @@ class TestStatsSerializer:
 
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
-        assert "The number of free throws made has to be non-negative." in serializer.errors['free_throws_made']
+        assert 'The number of free throws made has to be non-negative.' in serializer.errors['free_throws_made']
 
     @pytest.mark.django_db
     def test_stats_invalid_free_throws_attempted_negative(self, create_first_game, create_first_player):
@@ -1195,7 +1195,7 @@ class TestStatsSerializer:
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
         assert (
-                "The number of free throws attempted has to be non-negative." in
+                'The number of free throws attempted has to be non-negative.' in
                 serializer.errors['free_throws_attempted']
         )
 
@@ -1220,7 +1220,7 @@ class TestStatsSerializer:
 
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
-        assert "The number of defensive rebounds has to be non-negative." in serializer.errors['defensive_rebounds']
+        assert 'The number of defensive rebounds has to be non-negative.' in serializer.errors['defensive_rebounds']
 
     @pytest.mark.django_db
     def test_stats_invalid_offensive_rebounds_negative(self, create_first_game, create_first_player):
@@ -1243,7 +1243,7 @@ class TestStatsSerializer:
 
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
-        assert "The number of offensive rebounds has to be non-negative." in serializer.errors['offensive_rebounds']
+        assert 'The number of offensive rebounds has to be non-negative.' in serializer.errors['offensive_rebounds']
 
     @pytest.mark.django_db
     def test_stats_invalid_assists_negative(self, create_first_game, create_first_player):
@@ -1266,7 +1266,7 @@ class TestStatsSerializer:
 
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
-        assert "The number of assists has to be non-negative." in serializer.errors['assists']
+        assert 'The number of assists has to be non-negative.' in serializer.errors['assists']
 
     @pytest.mark.django_db
     def test_stats_invalid_steals_negative(self, create_first_game, create_first_player):
@@ -1289,7 +1289,7 @@ class TestStatsSerializer:
 
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
-        assert "The number of steals has to be non-negative." in serializer.errors['steals']
+        assert 'The number of steals has to be non-negative.' in serializer.errors['steals']
 
     @pytest.mark.django_db
     def test_stats_invalid_blocks_negative(self, create_first_game, create_first_player):
@@ -1312,7 +1312,7 @@ class TestStatsSerializer:
 
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
-        assert "The number of blocks has to be non-negative." in serializer.errors['blocks']
+        assert 'The number of blocks has to be non-negative.' in serializer.errors['blocks']
 
     @pytest.mark.django_db
     def test_stats_invalid_turnovers_negative(self, create_first_game, create_first_player):
@@ -1335,4 +1335,4 @@ class TestStatsSerializer:
 
         serializer = StatsSerializer(data=data)
         assert not serializer.is_valid()
-        assert "The number of turnovers has to be non-negative." in serializer.errors['turnovers']
+        assert 'The number of turnovers has to be non-negative.' in serializer.errors['turnovers']

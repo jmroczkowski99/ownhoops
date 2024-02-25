@@ -37,7 +37,7 @@ class Player(models.Model):
     jersey_number = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name} - DOB: {self.date_of_birth}"
+        return f'{self.name} - DOB: {self.date_of_birth}'
 
 
 class Game(models.Model):
@@ -46,7 +46,7 @@ class Game(models.Model):
     away_team = models.ForeignKey('Team', related_name='away_games', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.away_team} @ {self.home_team} - {self.date}"
+        return f'{self.away_team} @ {self.home_team} - {self.date}'
 
 
 class Stats(models.Model):
@@ -66,4 +66,4 @@ class Stats(models.Model):
     turnovers = models.IntegerField(null=False, blank=False)
 
     def __str__(self):
-        return f"{self.game} - {self.player} stats"
+        return f'{self.game} - {self.player} stats'

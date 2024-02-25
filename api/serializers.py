@@ -15,6 +15,160 @@ from django.urls import reverse
 import datetime
 
 
+class TeamSerializer(serializers.HyperlinkedModelSerializer):
+    players = serializers.SerializerMethodField()
+    coach = serializers.SerializerMethodField()
+    games = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Team
+        fields = ['url', 'id', 'name_abbreviation', 'full_name', 'coach', 'players', 'games']
+
+    def get_coach(self, obj):
+        coach_instance = obj.coach.first()
+        coach_data = CoachSerializer(coach_instance, context=self.context).data
+        return {
+            'url': coach_data.get('url', None),
+            'id': coach_data.get('id', None),
+            'name': coach_data.get('name', None),
+        }
+
+    def get_players(self, obj):
+        players_queryset = obj.players.all()
+        players_data = PlayerSerializer(players_queryset, many=True, context=self.context).data
+        return [
+            {
+                'url': player_data.get('url', None),
+                'id': player_data.get('id', None),
+                'name': player_data.get('name', None),
+                'position': player_data.get('position', None),
+                'jersey_number': player_data.get('jersey_number', None)
+            }
+            for player_data in players_data
+        ]
+
+    def get_games(self, obj):
+        games_queryset = obj.home_games.all() | obj.away_games.all()
+        games_data = GameSerializer(games_queryset, many=True, context=self.context).data
+        return [
+            {
+                'url': game_data.get('url', None),
+                'id': game_data.get('id', None),
+                'info': (
+                    f'{game_data.get("away_team_name_abbreviation", None)} @ '
+                    f'{game_data.get("home_team_name_abbreviation", None)} - '
+                    f'{game_data.get("date", None)}'
+                ),
+                'box_score': game_data.get('box_score', None),
+            }
+            for game_data in games_data
+        ]
+
+    def validate_name_abbreviation(self, value):
+        if not len(value) == 3:
+            raise serializers.ValidationError('Team name abbreviation must contain 3 letters.')
+
+        if not value.replace(' ', '').isalpha():
+            raise serializers.ValidationError('Team name abbreviation can contain only letters.')
+
+        if not value.isupper():
+            raise serializers.ValidationError('Team name abbreviation should be uppercase.')
+
+        return value
+
+    def validate_full_name(self, value):
+        if not value.replace(' ', '').isalnum():
+            raise serializers.ValidationError('Team name can contain only letters and numbers.')
+
+        validate_title_or_number_start(value, 'Team name should be capitalized.')
+
+        return value
+
+
+class GameSerializer(serializers.HyperlinkedModelSerializer):
+    game_info = serializers.SerializerMethodField()
+    home_team_name_abbreviation = serializers.ReadOnlyField(source='home_team.name_abbreviation')
+    away_team_name_abbreviation = serializers.ReadOnlyField(source='away_team.name_abbreviation')
+    home_team_score = serializers.SerializerMethodField()
+    away_team_score = serializers.SerializerMethodField()
+    box_score = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Game
+        fields = [
+            'url',
+            'id',
+            'date',
+            'game_info',
+            'home_team',
+            'home_team_name_abbreviation',
+            'away_team',
+            'away_team_name_abbreviation',
+            'home_team_score',
+            'away_team_score',
+            'box_score',
+        ]
+
+    def get_game_info(self, obj):
+        away_team = obj.away_team.name_abbreviation
+        home_team = obj.home_team.name_abbreviation
+        game_date = obj.date
+        return f'{away_team} @ {home_team} - {game_date}'
+
+    def get_home_team_score(self, obj):
+        home_team_stats = Stats.objects.filter(game=obj, player__team=obj.home_team)
+        total_points = sum(
+            StatsSerializer(stats, context=self.context).data.get('points', 0)
+            for stats in home_team_stats
+        )
+        return total_points
+
+    def get_away_team_score(self, obj):
+        away_team_stats = Stats.objects.filter(game=obj, player__team=obj.away_team)
+        total_points = sum(
+            StatsSerializer(stats, context=self.context).data.get('points', 0)
+            for stats in away_team_stats
+        )
+        return total_points
+
+    def get_box_score(self, obj):
+        stats_url = reverse('game-detail', args=[obj.id]) + 'stats/'
+        return self.context['request'].build_absolute_uri(stats_url)
+
+    def validate(self, data):
+        home_team = data['home_team']
+        away_team = data['away_team']
+        date = data['date']
+
+        if home_team == away_team:
+            raise serializers.ValidationError('Home team and Away team cannot be the same.')
+
+        if Game.objects.filter(
+            (models.Q(home_team=home_team, away_team=away_team) |
+             models.Q(home_team=away_team, away_team=home_team)),
+            date=date
+        ).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError('Cannot have two games between the same teams at the same time.')
+
+        if Game.objects.filter(
+            (Q(home_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(home_team=home_team, date__lte=date + datetime.timedelta(hours=2))) |
+            (Q(away_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(away_team=home_team, date__lte=date + datetime.timedelta(hours=2)))
+        ).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError('Home team has another game around the same time.')
+
+        if Game.objects.filter(
+            (Q(away_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(away_team=away_team, date__lte=date + datetime.timedelta(hours=2))) |
+            (Q(home_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(home_team=away_team, date__lte=date + datetime.timedelta(hours=2)))
+        ).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError('Away team has another game around the same time.')
+
+        return data
+
+
 class CoachSerializer(serializers.HyperlinkedModelSerializer):
     team_name_abbreviation = serializers.ReadOnlyField(source='team.name_abbreviation')
 
@@ -26,7 +180,7 @@ class CoachSerializer(serializers.HyperlinkedModelSerializer):
         team = data.get('team')
 
         if team and Coach.objects.filter(team=team).exclude(pk=self.instance if self.instance else None).exists():
-            raise serializers.ValidationError("This team already has a coach.")
+            raise serializers.ValidationError('This team already has a coach.')
 
         return data
 
@@ -181,160 +335,6 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
         return value
 
 
-class TeamSerializer(serializers.HyperlinkedModelSerializer):
-    players = serializers.SerializerMethodField()
-    coach = serializers.SerializerMethodField()
-    games = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Team
-        fields = ['url', 'id', 'name_abbreviation', 'full_name', 'coach', 'players', 'games']
-
-    def get_coach(self, obj):
-        coach_instance = obj.coach.first()
-        coach_data = CoachSerializer(coach_instance, context=self.context).data
-        return {
-            'url': coach_data.get('url', None),
-            'id': coach_data.get('id', None),
-            'name': coach_data.get('name', None),
-        }
-
-    def get_players(self, obj):
-        players_queryset = obj.players.all()
-        players_data = PlayerSerializer(players_queryset, many=True, context=self.context).data
-        return [
-            {
-                'url': player_data.get('url', None),
-                'id': player_data.get('id', None),
-                'name': player_data.get('name', None),
-                'position': player_data.get('position', None),
-                'jersey_number': player_data.get('jersey_number', None)
-            }
-            for player_data in players_data
-        ]
-
-    def get_games(self, obj):
-        games_queryset = obj.home_games.all() | obj.away_games.all()
-        games_data = GameSerializer(games_queryset, many=True, context=self.context).data
-        return [
-            {
-                'url': game_data.get('url', None),
-                'id': game_data.get('id', None),
-                'info': (
-                    f"{game_data.get('away_team_name_abbreviation', None)} @ "
-                    f"{game_data.get('home_team_name_abbreviation', None)} - "
-                    f"{game_data.get('date', None)}"
-                ),
-                'box_score': game_data.get('box_score', None),
-            }
-            for game_data in games_data
-        ]
-
-    def validate_name_abbreviation(self, value):
-        if not len(value) == 3:
-            raise serializers.ValidationError('Team name abbreviation must contain 3 letters.')
-
-        if not value.replace(' ', '').isalpha():
-            raise serializers.ValidationError('Team name abbreviation can contain only letters.')
-
-        if not value.isupper():
-            raise serializers.ValidationError('Team name abbreviation should be uppercase.')
-
-        return value
-
-    def validate_full_name(self, value):
-        if not value.replace(' ', '').isalnum():
-            raise serializers.ValidationError('Team name can contain only letters and numbers.')
-
-        validate_title_or_number_start(value, 'Team name should be capitalized.')
-
-        return value
-
-
-class GameSerializer(serializers.HyperlinkedModelSerializer):
-    game_info = serializers.SerializerMethodField()
-    home_team_name_abbreviation = serializers.ReadOnlyField(source='home_team.name_abbreviation')
-    away_team_name_abbreviation = serializers.ReadOnlyField(source='away_team.name_abbreviation')
-    home_team_score = serializers.SerializerMethodField()
-    away_team_score = serializers.SerializerMethodField()
-    box_score = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Game
-        fields = [
-            'url',
-            'id',
-            'date',
-            'game_info',
-            'home_team',
-            'home_team_name_abbreviation',
-            'away_team',
-            'away_team_name_abbreviation',
-            'home_team_score',
-            'away_team_score',
-            'box_score',
-        ]
-
-    def get_game_info(self, obj):
-        away_team = obj.away_team.name_abbreviation
-        home_team = obj.home_team.name_abbreviation
-        game_date = obj.date
-        return f"{away_team} @ {home_team} - {game_date}"
-
-    def get_home_team_score(self, obj):
-        home_team_stats = Stats.objects.filter(game=obj, player__team=obj.home_team)
-        total_points = sum(
-            StatsSerializer(stats, context=self.context).data.get('points', 0)
-            for stats in home_team_stats
-        )
-        return total_points
-
-    def get_away_team_score(self, obj):
-        away_team_stats = Stats.objects.filter(game=obj, player__team=obj.away_team)
-        total_points = sum(
-            StatsSerializer(stats, context=self.context).data.get('points', 0)
-            for stats in away_team_stats
-        )
-        return total_points
-
-    def get_box_score(self, obj):
-        stats_url = reverse('game-detail', args=[obj.id]) + 'stats/'
-        return self.context['request'].build_absolute_uri(stats_url)
-
-    def validate(self, data):
-        home_team = data['home_team']
-        away_team = data['away_team']
-        date = data['date']
-
-        if home_team == away_team:
-            raise serializers.ValidationError('Home team and Away team cannot be the same.')
-
-        if Game.objects.filter(
-            (models.Q(home_team=home_team, away_team=away_team) |
-             models.Q(home_team=away_team, away_team=home_team)),
-            date=date
-        ).exclude(pk=self.instance.pk if self.instance else None).exists():
-            raise serializers.ValidationError('Cannot have two games between the same teams at the same time.')
-
-        if Game.objects.filter(
-            (Q(home_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
-                Q(home_team=home_team, date__lte=date + datetime.timedelta(hours=2))) |
-            (Q(away_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
-                Q(away_team=home_team, date__lte=date + datetime.timedelta(hours=2)))
-        ).exclude(pk=self.instance.pk if self.instance else None).exists():
-            raise serializers.ValidationError('Home team has another game around the same time.')
-
-        if Game.objects.filter(
-            (Q(away_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
-                Q(away_team=away_team, date__lte=date + datetime.timedelta(hours=2))) |
-            (Q(home_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
-                Q(home_team=away_team, date__lte=date + datetime.timedelta(hours=2)))
-        ).exclude(pk=self.instance.pk if self.instance else None).exists():
-            raise serializers.ValidationError('Away team has another game around the same time.')
-
-        return data
-
-
 class StatsSerializer(serializers.HyperlinkedModelSerializer):
     game_info = serializers.SerializerMethodField()
     player_name = serializers.ReadOnlyField(source='player.name')
@@ -376,7 +376,7 @@ class StatsSerializer(serializers.HyperlinkedModelSerializer):
         away_team = obj.game.away_team.name_abbreviation
         home_team = obj.game.home_team.name_abbreviation
         game_date = obj.game.date
-        return f"{away_team} @ {home_team} - {game_date}"
+        return f'{away_team} @ {home_team} - {game_date}'
 
     def get_points(self, obj):
         one_pointers = obj.free_throws_made
@@ -421,7 +421,7 @@ class StatsSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError('Cannot have two instances of stats of the same player in one game.')
 
         if player.team != game.home_team and player.team != game.away_team:
-            raise serializers.ValidationError("This player is not in the team participating in the game.")
+            raise serializers.ValidationError('This player is not in the team participating in the game.')
 
         if fgm > fga or tpm > tpa or ftm > fta:
             raise serializers.ValidationError(
@@ -441,37 +441,37 @@ class StatsSerializer(serializers.HyperlinkedModelSerializer):
         return data
 
     def validate_field_goals_made(self, value):
-        return validate_nonnegative(value, "The number of field goals made has to be non-negative.")
+        return validate_nonnegative(value, 'The number of field goals made has to be non-negative.')
 
     def validate_field_goals_attempted(self, value):
-        return validate_nonnegative(value, "The number of field goals attempted has to be non-negative.")
+        return validate_nonnegative(value, 'The number of field goals attempted has to be non-negative.')
 
     def validate_three_pointers_made(self, value):
-        return validate_nonnegative(value, "The number of three pointers made has to be non-negative.")
+        return validate_nonnegative(value, 'The number of three pointers made has to be non-negative.')
 
     def validate_three_pointers_attempted(self, value):
-        return validate_nonnegative(value, "The number of three pointers attempted has to be non-negative.")
+        return validate_nonnegative(value, 'The number of three pointers attempted has to be non-negative.')
 
     def validate_free_throws_made(self, value):
-        return validate_nonnegative(value, "The number of free throws made has to be non-negative.")
+        return validate_nonnegative(value, 'The number of free throws made has to be non-negative.')
 
     def validate_free_throws_attempted(self, value):
-        return validate_nonnegative(value, "The number of free throws attempted has to be non-negative.")
+        return validate_nonnegative(value, 'The number of free throws attempted has to be non-negative.')
 
     def validate_offensive_rebounds(self, value):
-        return validate_nonnegative(value, "The number of offensive rebounds has to be non-negative.")
+        return validate_nonnegative(value, 'The number of offensive rebounds has to be non-negative.')
 
     def validate_defensive_rebounds(self, value):
-        return validate_nonnegative(value, "The number of defensive rebounds has to be non-negative.")
+        return validate_nonnegative(value, 'The number of defensive rebounds has to be non-negative.')
 
     def validate_assists(self, value):
-        return validate_nonnegative(value, "The number of assists has to be non-negative.")
+        return validate_nonnegative(value, 'The number of assists has to be non-negative.')
 
     def validate_steals(self, value):
-        return validate_nonnegative(value, "The number of steals has to be non-negative.")
+        return validate_nonnegative(value, 'The number of steals has to be non-negative.')
 
     def validate_blocks(self, value):
-        return validate_nonnegative(value, "The number of blocks has to be non-negative.")
+        return validate_nonnegative(value, 'The number of blocks has to be non-negative.')
 
     def validate_turnovers(self, value):
-        return validate_nonnegative(value, "The number of turnovers has to be non-negative.")
+        return validate_nonnegative(value, 'The number of turnovers has to be non-negative.')
