@@ -18,27 +18,27 @@ class TestTeamViewSet:
 
     @pytest.mark.django_db
     def test_create_team_unauthenticated(self, api_client):
-        data = {'name_abbreviation': 'ABC', 'full_name': "Abcers"}
+        data = {'name_abbreviation': 'ABC', 'full_name': 'Abcers'}
         response = api_client.post(reverse('team-list'), data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @pytest.mark.django_db
     def test_create_team_authenticated(self, api_client, create_superuser):
         api_client.force_authenticate(user=create_superuser)
-        data = {'name_abbreviation': 'ABC', 'full_name': "Abcers"}
+        data = {'name_abbreviation': 'ABC', 'full_name': 'Abcers'}
         response = api_client.post(reverse('team-list'), data)
         assert response.status_code == status.HTTP_201_CREATED
 
     @pytest.mark.django_db
     def test_edit_team_unauthenticated(self, api_client, create_first_team):
-        data = {'name_abbreviation': 'ABC', 'full_name': "Abcers"}
+        data = {'name_abbreviation': 'ABC', 'full_name': 'Abcers'}
         response = api_client.put(reverse('team-detail', args=[create_first_team.id]), data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @pytest.mark.django_db
     def test_edit_team_authenticated(self, api_client, create_superuser, create_first_team):
         api_client.force_authenticate(user=create_superuser)
-        data = {'name_abbreviation': 'ABC', 'full_name': "Abcers"}
+        data = {'name_abbreviation': 'ABC', 'full_name': 'Abcers'}
         response = api_client.put(reverse('team-detail', args=[create_first_team.id]), data)
         assert response.status_code == status.HTTP_200_OK
 
@@ -63,8 +63,8 @@ class TestCoachViewSet:
 
     @pytest.mark.django_db
     def test_list_coaches_specific_team(self, api_client, create_first_team, create_first_coach, create_second_coach):
-        team_url = reverse("team-detail", args=[create_first_team.id])
-        team_coach_url = f"{team_url}coach/"
+        team_url = reverse('team-detail', args=[create_first_team.id])
+        team_coach_url = f'{team_url}coach/'
         response = api_client.get(team_coach_url)
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
@@ -121,8 +121,8 @@ class TestPlayerViewSet:
 
     @pytest.mark.django_db
     def test_list_players_specific_team(self, api_client, create_first_team, create_first_player, create_second_player):
-        team_url = reverse("team-detail", args=[create_first_team.id])
-        team_players_url = f"{team_url}players/"
+        team_url = reverse('team-detail', args=[create_first_team.id])
+        team_players_url = f'{team_url}players/'
         response = api_client.get(team_players_url)
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
@@ -215,8 +215,8 @@ class TestGameViewSet:
 
     @pytest.mark.django_db
     def test_list_games_specific_team(self, api_client, create_second_team, create_first_game, create_second_game):
-        team_url = reverse("team-detail", args=[create_second_team.id])
-        team_games_url = f"{team_url}games/"
+        team_url = reverse('team-detail', args=[create_second_team.id])
+        team_games_url = f'{team_url}games/'
         response = api_client.get(team_games_url)
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
