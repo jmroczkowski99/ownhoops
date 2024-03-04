@@ -1,0 +1,4101 @@
+openapi: 3.0.3
+info:
+  title: ownhoops
+  version: 0.0.0
+paths:
+  /coaches/:
+    get:
+      operationId: coaches_list
+      tags:
+      - coaches
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Coach'
+              examples:
+                ExampleCoach:
+                  value:
+                  - url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                    date_of_birth: '1970-01-01'
+                    team: http://127.0.0.1:8000/teams/1/
+                    team_name_abbreviation: MIA
+                  summary: An example coach
+          description: ''
+    post:
+      operationId: coaches_create
+      tags:
+      - coaches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Coach'
+            examples:
+              ExampleCoach:
+                value:
+                  url: http://127.0.0.1:8000/coaches/1/
+                  id: 1
+                  name: Erik Spoelstra
+                  date_of_birth: '1970-01-01'
+                  team: http://127.0.0.1:8000/teams/1/
+                  team_name_abbreviation: MIA
+                summary: An example coach
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Coach'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Coach'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+              examples:
+                ExampleCoach:
+                  value:
+                    url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                    date_of_birth: '1970-01-01'
+                    team: http://127.0.0.1:8000/teams/1/
+                    team_name_abbreviation: MIA
+                  summary: An example coach
+          description: ''
+  /coaches/{id}/:
+    get:
+      operationId: coaches_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coach.
+        required: true
+      tags:
+      - coaches
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+              examples:
+                ExampleCoach:
+                  value:
+                    url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                    date_of_birth: '1970-01-01'
+                    team: http://127.0.0.1:8000/teams/1/
+                    team_name_abbreviation: MIA
+                  summary: An example coach
+          description: ''
+    put:
+      operationId: coaches_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coach.
+        required: true
+      tags:
+      - coaches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Coach'
+            examples:
+              ExampleCoach:
+                value:
+                  url: http://127.0.0.1:8000/coaches/1/
+                  id: 1
+                  name: Erik Spoelstra
+                  date_of_birth: '1970-01-01'
+                  team: http://127.0.0.1:8000/teams/1/
+                  team_name_abbreviation: MIA
+                summary: An example coach
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Coach'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Coach'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+              examples:
+                ExampleCoach:
+                  value:
+                    url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                    date_of_birth: '1970-01-01'
+                    team: http://127.0.0.1:8000/teams/1/
+                    team_name_abbreviation: MIA
+                  summary: An example coach
+          description: ''
+    patch:
+      operationId: coaches_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coach.
+        required: true
+      tags:
+      - coaches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCoach'
+            examples:
+              ExampleCoach:
+                value:
+                  url: http://127.0.0.1:8000/coaches/1/
+                  id: 1
+                  name: Erik Spoelstra
+                  date_of_birth: '1970-01-01'
+                  team: http://127.0.0.1:8000/teams/1/
+                  team_name_abbreviation: MIA
+                summary: An example coach
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCoach'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCoach'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+              examples:
+                ExampleCoach:
+                  value:
+                    url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                    date_of_birth: '1970-01-01'
+                    team: http://127.0.0.1:8000/teams/1/
+                    team_name_abbreviation: MIA
+                  summary: An example coach
+          description: ''
+    delete:
+      operationId: coaches_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coach.
+        required: true
+      tags:
+      - coaches
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /games/:
+    get:
+      operationId: games_list
+      tags:
+      - games
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Game'
+              examples:
+                ExampleGame:
+                  value:
+                  - url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    date: '2024-02-26T20:00:00Z'
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    home_team: http://127.0.0.1:8000/teams/1/
+                    home_team_name_abbreviation: MIA
+                    away_team: http://127.0.0.1:8000/teams/2/
+                    away_team_name_abbreviation: IND
+                    home_team_score: 36
+                    away_team_score: 29
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  summary: An example game
+          description: ''
+    post:
+      operationId: games_create
+      tags:
+      - games
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Game'
+            examples:
+              ExampleGame:
+                value:
+                  url: http://127.0.0.1:8000/games/1/
+                  id: 1
+                  date: '2024-02-26T20:00:00Z'
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  home_team: http://127.0.0.1:8000/teams/1/
+                  home_team_name_abbreviation: MIA
+                  away_team: http://127.0.0.1:8000/teams/2/
+                  away_team_name_abbreviation: IND
+                  home_team_score: 36
+                  away_team_score: 29
+                  box_score: http://127.0.0.1:8000/games/1/stats/
+                summary: An example game
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Game'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Game'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+              examples:
+                ExampleGame:
+                  value:
+                    url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    date: '2024-02-26T20:00:00Z'
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    home_team: http://127.0.0.1:8000/teams/1/
+                    home_team_name_abbreviation: MIA
+                    away_team: http://127.0.0.1:8000/teams/2/
+                    away_team_name_abbreviation: IND
+                    home_team_score: 36
+                    away_team_score: 29
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  summary: An example game
+          description: ''
+  /games/{game_pk}/stats/:
+    get:
+      operationId: games_stats_list
+      parameters:
+      - in: path
+        name: game_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - games
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                  - url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    post:
+      operationId: games_stats_create
+      parameters:
+      - in: path
+        name: game_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - games
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Stats'
+            examples:
+              ExampleStats:
+                value:
+                  url: http://127.0.0.1:8000/stats/1/
+                  id: 1
+                  game: http://127.0.0.1:8000/games/1/
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  player: http://127.0.0.1:8000/players/4/
+                  player_name: Tyrese Haliburton
+                  field_goals_made: 10
+                  field_goals_attempted: 20
+                  field_goal_percentage: 50
+                  three_pointers_made: 5
+                  three_pointers_attempted: 9
+                  three_point_percentage: 55.56
+                  free_throws_made: 4
+                  free_throws_attempted: 4
+                  free_throw_percentage: 100
+                  offensive_rebounds: 1
+                  defensive_rebounds: 3
+                  rebounds: 4
+                  assists: 8
+                  steals: 2
+                  blocks: 0
+                  turnovers: 0
+                  points: 29
+                summary: An example statline
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Stats'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Stats'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+  /games/{game_pk}/stats/{id}/:
+    get:
+      operationId: games_stats_retrieve
+      parameters:
+      - in: path
+        name: game_pk
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      tags:
+      - games
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    put:
+      operationId: games_stats_update
+      parameters:
+      - in: path
+        name: game_pk
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      tags:
+      - games
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Stats'
+            examples:
+              ExampleStats:
+                value:
+                  url: http://127.0.0.1:8000/stats/1/
+                  id: 1
+                  game: http://127.0.0.1:8000/games/1/
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  player: http://127.0.0.1:8000/players/4/
+                  player_name: Tyrese Haliburton
+                  field_goals_made: 10
+                  field_goals_attempted: 20
+                  field_goal_percentage: 50
+                  three_pointers_made: 5
+                  three_pointers_attempted: 9
+                  three_point_percentage: 55.56
+                  free_throws_made: 4
+                  free_throws_attempted: 4
+                  free_throw_percentage: 100
+                  offensive_rebounds: 1
+                  defensive_rebounds: 3
+                  rebounds: 4
+                  assists: 8
+                  steals: 2
+                  blocks: 0
+                  turnovers: 0
+                  points: 29
+                summary: An example statline
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Stats'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Stats'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    patch:
+      operationId: games_stats_partial_update
+      parameters:
+      - in: path
+        name: game_pk
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      tags:
+      - games
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStats'
+            examples:
+              ExampleStats:
+                value:
+                  url: http://127.0.0.1:8000/stats/1/
+                  id: 1
+                  game: http://127.0.0.1:8000/games/1/
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  player: http://127.0.0.1:8000/players/4/
+                  player_name: Tyrese Haliburton
+                  field_goals_made: 10
+                  field_goals_attempted: 20
+                  field_goal_percentage: 50
+                  three_pointers_made: 5
+                  three_pointers_attempted: 9
+                  three_point_percentage: 55.56
+                  free_throws_made: 4
+                  free_throws_attempted: 4
+                  free_throw_percentage: 100
+                  offensive_rebounds: 1
+                  defensive_rebounds: 3
+                  rebounds: 4
+                  assists: 8
+                  steals: 2
+                  blocks: 0
+                  turnovers: 0
+                  points: 29
+                summary: An example statline
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStats'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStats'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    delete:
+      operationId: games_stats_destroy
+      parameters:
+      - in: path
+        name: game_pk
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      tags:
+      - games
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /games/{id}/:
+    get:
+      operationId: games_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this game.
+        required: true
+      tags:
+      - games
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+              examples:
+                ExampleGame:
+                  value:
+                    url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    date: '2024-02-26T20:00:00Z'
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    home_team: http://127.0.0.1:8000/teams/1/
+                    home_team_name_abbreviation: MIA
+                    away_team: http://127.0.0.1:8000/teams/2/
+                    away_team_name_abbreviation: IND
+                    home_team_score: 36
+                    away_team_score: 29
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  summary: An example game
+          description: ''
+    put:
+      operationId: games_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this game.
+        required: true
+      tags:
+      - games
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Game'
+            examples:
+              ExampleGame:
+                value:
+                  url: http://127.0.0.1:8000/games/1/
+                  id: 1
+                  date: '2024-02-26T20:00:00Z'
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  home_team: http://127.0.0.1:8000/teams/1/
+                  home_team_name_abbreviation: MIA
+                  away_team: http://127.0.0.1:8000/teams/2/
+                  away_team_name_abbreviation: IND
+                  home_team_score: 36
+                  away_team_score: 29
+                  box_score: http://127.0.0.1:8000/games/1/stats/
+                summary: An example game
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Game'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Game'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+              examples:
+                ExampleGame:
+                  value:
+                    url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    date: '2024-02-26T20:00:00Z'
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    home_team: http://127.0.0.1:8000/teams/1/
+                    home_team_name_abbreviation: MIA
+                    away_team: http://127.0.0.1:8000/teams/2/
+                    away_team_name_abbreviation: IND
+                    home_team_score: 36
+                    away_team_score: 29
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  summary: An example game
+          description: ''
+    patch:
+      operationId: games_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this game.
+        required: true
+      tags:
+      - games
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGame'
+            examples:
+              ExampleGame:
+                value:
+                  url: http://127.0.0.1:8000/games/1/
+                  id: 1
+                  date: '2024-02-26T20:00:00Z'
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  home_team: http://127.0.0.1:8000/teams/1/
+                  home_team_name_abbreviation: MIA
+                  away_team: http://127.0.0.1:8000/teams/2/
+                  away_team_name_abbreviation: IND
+                  home_team_score: 36
+                  away_team_score: 29
+                  box_score: http://127.0.0.1:8000/games/1/stats/
+                summary: An example game
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGame'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGame'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+              examples:
+                ExampleGame:
+                  value:
+                    url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    date: '2024-02-26T20:00:00Z'
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    home_team: http://127.0.0.1:8000/teams/1/
+                    home_team_name_abbreviation: MIA
+                    away_team: http://127.0.0.1:8000/teams/2/
+                    away_team_name_abbreviation: IND
+                    home_team_score: 36
+                    away_team_score: 29
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  summary: An example game
+          description: ''
+    delete:
+      operationId: games_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this game.
+        required: true
+      tags:
+      - games
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /players/:
+    get:
+      operationId: players_list
+      tags:
+      - players
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Player'
+              examples:
+                ExamplePlayer:
+                  value:
+                  - url: http://127.0.0.1:8000/players/1/
+                    id: 1
+                    name: Stephen Curry
+                    team: http://127.0.0.1:8000/teams/3/
+                    team_name_abbreviation: GSW
+                    date_of_birth: '1988-01-01'
+                    country: USA
+                    position: PG
+                    height: 188
+                    weight: 90
+                    jersey_number: 30
+                    points_per_game: 36
+                    offensive_rebounds_per_game: 0
+                    defensive_rebounds_per_game: 2
+                    rebounds_per_game: 2
+                    assists_per_game: 5
+                    steals_per_game: 0
+                    blocks_per_game: 0
+                    turnovers_per_game: 1
+                    field_goal_percentage: 60.87
+                    three_point_field_goal_percentage: 46.15
+                    free_throw_percentage: 100
+                    all_stats: http://127.0.0.1:8000/players/1/stats/
+                  summary: An example player
+          description: ''
+    post:
+      operationId: players_create
+      tags:
+      - players
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+            examples:
+              ExamplePlayer:
+                value:
+                  url: http://127.0.0.1:8000/players/1/
+                  id: 1
+                  name: Stephen Curry
+                  team: http://127.0.0.1:8000/teams/3/
+                  team_name_abbreviation: GSW
+                  date_of_birth: '1988-01-01'
+                  country: USA
+                  position: PG
+                  height: 188
+                  weight: 90
+                  jersey_number: 30
+                  points_per_game: 36
+                  offensive_rebounds_per_game: 0
+                  defensive_rebounds_per_game: 2
+                  rebounds_per_game: 2
+                  assists_per_game: 5
+                  steals_per_game: 0
+                  blocks_per_game: 0
+                  turnovers_per_game: 1
+                  field_goal_percentage: 60.87
+                  three_point_field_goal_percentage: 46.15
+                  free_throw_percentage: 100
+                  all_stats: http://127.0.0.1:8000/players/1/stats/
+                summary: An example player
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Player'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Player'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+              examples:
+                ExamplePlayer:
+                  value:
+                    url: http://127.0.0.1:8000/players/1/
+                    id: 1
+                    name: Stephen Curry
+                    team: http://127.0.0.1:8000/teams/3/
+                    team_name_abbreviation: GSW
+                    date_of_birth: '1988-01-01'
+                    country: USA
+                    position: PG
+                    height: 188
+                    weight: 90
+                    jersey_number: 30
+                    points_per_game: 36
+                    offensive_rebounds_per_game: 0
+                    defensive_rebounds_per_game: 2
+                    rebounds_per_game: 2
+                    assists_per_game: 5
+                    steals_per_game: 0
+                    blocks_per_game: 0
+                    turnovers_per_game: 1
+                    field_goal_percentage: 60.87
+                    three_point_field_goal_percentage: 46.15
+                    free_throw_percentage: 100
+                    all_stats: http://127.0.0.1:8000/players/1/stats/
+                  summary: An example player
+          description: ''
+  /players/{id}/:
+    get:
+      operationId: players_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this player.
+        required: true
+      tags:
+      - players
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+              examples:
+                ExamplePlayer:
+                  value:
+                    url: http://127.0.0.1:8000/players/1/
+                    id: 1
+                    name: Stephen Curry
+                    team: http://127.0.0.1:8000/teams/3/
+                    team_name_abbreviation: GSW
+                    date_of_birth: '1988-01-01'
+                    country: USA
+                    position: PG
+                    height: 188
+                    weight: 90
+                    jersey_number: 30
+                    points_per_game: 36
+                    offensive_rebounds_per_game: 0
+                    defensive_rebounds_per_game: 2
+                    rebounds_per_game: 2
+                    assists_per_game: 5
+                    steals_per_game: 0
+                    blocks_per_game: 0
+                    turnovers_per_game: 1
+                    field_goal_percentage: 60.87
+                    three_point_field_goal_percentage: 46.15
+                    free_throw_percentage: 100
+                    all_stats: http://127.0.0.1:8000/players/1/stats/
+                  summary: An example player
+          description: ''
+    put:
+      operationId: players_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this player.
+        required: true
+      tags:
+      - players
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+            examples:
+              ExamplePlayer:
+                value:
+                  url: http://127.0.0.1:8000/players/1/
+                  id: 1
+                  name: Stephen Curry
+                  team: http://127.0.0.1:8000/teams/3/
+                  team_name_abbreviation: GSW
+                  date_of_birth: '1988-01-01'
+                  country: USA
+                  position: PG
+                  height: 188
+                  weight: 90
+                  jersey_number: 30
+                  points_per_game: 36
+                  offensive_rebounds_per_game: 0
+                  defensive_rebounds_per_game: 2
+                  rebounds_per_game: 2
+                  assists_per_game: 5
+                  steals_per_game: 0
+                  blocks_per_game: 0
+                  turnovers_per_game: 1
+                  field_goal_percentage: 60.87
+                  three_point_field_goal_percentage: 46.15
+                  free_throw_percentage: 100
+                  all_stats: http://127.0.0.1:8000/players/1/stats/
+                summary: An example player
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Player'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Player'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+              examples:
+                ExamplePlayer:
+                  value:
+                    url: http://127.0.0.1:8000/players/1/
+                    id: 1
+                    name: Stephen Curry
+                    team: http://127.0.0.1:8000/teams/3/
+                    team_name_abbreviation: GSW
+                    date_of_birth: '1988-01-01'
+                    country: USA
+                    position: PG
+                    height: 188
+                    weight: 90
+                    jersey_number: 30
+                    points_per_game: 36
+                    offensive_rebounds_per_game: 0
+                    defensive_rebounds_per_game: 2
+                    rebounds_per_game: 2
+                    assists_per_game: 5
+                    steals_per_game: 0
+                    blocks_per_game: 0
+                    turnovers_per_game: 1
+                    field_goal_percentage: 60.87
+                    three_point_field_goal_percentage: 46.15
+                    free_throw_percentage: 100
+                    all_stats: http://127.0.0.1:8000/players/1/stats/
+                  summary: An example player
+          description: ''
+    patch:
+      operationId: players_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this player.
+        required: true
+      tags:
+      - players
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayer'
+            examples:
+              ExamplePlayer:
+                value:
+                  url: http://127.0.0.1:8000/players/1/
+                  id: 1
+                  name: Stephen Curry
+                  team: http://127.0.0.1:8000/teams/3/
+                  team_name_abbreviation: GSW
+                  date_of_birth: '1988-01-01'
+                  country: USA
+                  position: PG
+                  height: 188
+                  weight: 90
+                  jersey_number: 30
+                  points_per_game: 36
+                  offensive_rebounds_per_game: 0
+                  defensive_rebounds_per_game: 2
+                  rebounds_per_game: 2
+                  assists_per_game: 5
+                  steals_per_game: 0
+                  blocks_per_game: 0
+                  turnovers_per_game: 1
+                  field_goal_percentage: 60.87
+                  three_point_field_goal_percentage: 46.15
+                  free_throw_percentage: 100
+                  all_stats: http://127.0.0.1:8000/players/1/stats/
+                summary: An example player
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayer'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+              examples:
+                ExamplePlayer:
+                  value:
+                    url: http://127.0.0.1:8000/players/1/
+                    id: 1
+                    name: Stephen Curry
+                    team: http://127.0.0.1:8000/teams/3/
+                    team_name_abbreviation: GSW
+                    date_of_birth: '1988-01-01'
+                    country: USA
+                    position: PG
+                    height: 188
+                    weight: 90
+                    jersey_number: 30
+                    points_per_game: 36
+                    offensive_rebounds_per_game: 0
+                    defensive_rebounds_per_game: 2
+                    rebounds_per_game: 2
+                    assists_per_game: 5
+                    steals_per_game: 0
+                    blocks_per_game: 0
+                    turnovers_per_game: 1
+                    field_goal_percentage: 60.87
+                    three_point_field_goal_percentage: 46.15
+                    free_throw_percentage: 100
+                    all_stats: http://127.0.0.1:8000/players/1/stats/
+                  summary: An example player
+          description: ''
+    delete:
+      operationId: players_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this player.
+        required: true
+      tags:
+      - players
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /players/{player_pk}/stats/:
+    get:
+      operationId: players_stats_list
+      parameters:
+      - in: path
+        name: player_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - players
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                  - url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    post:
+      operationId: players_stats_create
+      parameters:
+      - in: path
+        name: player_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - players
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Stats'
+            examples:
+              ExampleStats:
+                value:
+                  url: http://127.0.0.1:8000/stats/1/
+                  id: 1
+                  game: http://127.0.0.1:8000/games/1/
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  player: http://127.0.0.1:8000/players/4/
+                  player_name: Tyrese Haliburton
+                  field_goals_made: 10
+                  field_goals_attempted: 20
+                  field_goal_percentage: 50
+                  three_pointers_made: 5
+                  three_pointers_attempted: 9
+                  three_point_percentage: 55.56
+                  free_throws_made: 4
+                  free_throws_attempted: 4
+                  free_throw_percentage: 100
+                  offensive_rebounds: 1
+                  defensive_rebounds: 3
+                  rebounds: 4
+                  assists: 8
+                  steals: 2
+                  blocks: 0
+                  turnovers: 0
+                  points: 29
+                summary: An example statline
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Stats'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Stats'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+  /players/{player_pk}/stats/{id}/:
+    get:
+      operationId: players_stats_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      - in: path
+        name: player_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - players
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    put:
+      operationId: players_stats_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      - in: path
+        name: player_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - players
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Stats'
+            examples:
+              ExampleStats:
+                value:
+                  url: http://127.0.0.1:8000/stats/1/
+                  id: 1
+                  game: http://127.0.0.1:8000/games/1/
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  player: http://127.0.0.1:8000/players/4/
+                  player_name: Tyrese Haliburton
+                  field_goals_made: 10
+                  field_goals_attempted: 20
+                  field_goal_percentage: 50
+                  three_pointers_made: 5
+                  three_pointers_attempted: 9
+                  three_point_percentage: 55.56
+                  free_throws_made: 4
+                  free_throws_attempted: 4
+                  free_throw_percentage: 100
+                  offensive_rebounds: 1
+                  defensive_rebounds: 3
+                  rebounds: 4
+                  assists: 8
+                  steals: 2
+                  blocks: 0
+                  turnovers: 0
+                  points: 29
+                summary: An example statline
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Stats'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Stats'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    patch:
+      operationId: players_stats_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      - in: path
+        name: player_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - players
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStats'
+            examples:
+              ExampleStats:
+                value:
+                  url: http://127.0.0.1:8000/stats/1/
+                  id: 1
+                  game: http://127.0.0.1:8000/games/1/
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  player: http://127.0.0.1:8000/players/4/
+                  player_name: Tyrese Haliburton
+                  field_goals_made: 10
+                  field_goals_attempted: 20
+                  field_goal_percentage: 50
+                  three_pointers_made: 5
+                  three_pointers_attempted: 9
+                  three_point_percentage: 55.56
+                  free_throws_made: 4
+                  free_throws_attempted: 4
+                  free_throw_percentage: 100
+                  offensive_rebounds: 1
+                  defensive_rebounds: 3
+                  rebounds: 4
+                  assists: 8
+                  steals: 2
+                  blocks: 0
+                  turnovers: 0
+                  points: 29
+                summary: An example statline
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStats'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStats'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    delete:
+      operationId: players_stats_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      - in: path
+        name: player_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - players
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /stats/:
+    get:
+      operationId: stats_list
+      tags:
+      - stats
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                  - url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    post:
+      operationId: stats_create
+      tags:
+      - stats
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Stats'
+            examples:
+              ExampleStats:
+                value:
+                  url: http://127.0.0.1:8000/stats/1/
+                  id: 1
+                  game: http://127.0.0.1:8000/games/1/
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  player: http://127.0.0.1:8000/players/4/
+                  player_name: Tyrese Haliburton
+                  field_goals_made: 10
+                  field_goals_attempted: 20
+                  field_goal_percentage: 50
+                  three_pointers_made: 5
+                  three_pointers_attempted: 9
+                  three_point_percentage: 55.56
+                  free_throws_made: 4
+                  free_throws_attempted: 4
+                  free_throw_percentage: 100
+                  offensive_rebounds: 1
+                  defensive_rebounds: 3
+                  rebounds: 4
+                  assists: 8
+                  steals: 2
+                  blocks: 0
+                  turnovers: 0
+                  points: 29
+                summary: An example statline
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Stats'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Stats'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+  /stats/{id}/:
+    get:
+      operationId: stats_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      tags:
+      - stats
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    put:
+      operationId: stats_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      tags:
+      - stats
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Stats'
+            examples:
+              ExampleStats:
+                value:
+                  url: http://127.0.0.1:8000/stats/1/
+                  id: 1
+                  game: http://127.0.0.1:8000/games/1/
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  player: http://127.0.0.1:8000/players/4/
+                  player_name: Tyrese Haliburton
+                  field_goals_made: 10
+                  field_goals_attempted: 20
+                  field_goal_percentage: 50
+                  three_pointers_made: 5
+                  three_pointers_attempted: 9
+                  three_point_percentage: 55.56
+                  free_throws_made: 4
+                  free_throws_attempted: 4
+                  free_throw_percentage: 100
+                  offensive_rebounds: 1
+                  defensive_rebounds: 3
+                  rebounds: 4
+                  assists: 8
+                  steals: 2
+                  blocks: 0
+                  turnovers: 0
+                  points: 29
+                summary: An example statline
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Stats'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Stats'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    patch:
+      operationId: stats_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      tags:
+      - stats
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStats'
+            examples:
+              ExampleStats:
+                value:
+                  url: http://127.0.0.1:8000/stats/1/
+                  id: 1
+                  game: http://127.0.0.1:8000/games/1/
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  player: http://127.0.0.1:8000/players/4/
+                  player_name: Tyrese Haliburton
+                  field_goals_made: 10
+                  field_goals_attempted: 20
+                  field_goal_percentage: 50
+                  three_pointers_made: 5
+                  three_pointers_attempted: 9
+                  three_point_percentage: 55.56
+                  free_throws_made: 4
+                  free_throws_attempted: 4
+                  free_throw_percentage: 100
+                  offensive_rebounds: 1
+                  defensive_rebounds: 3
+                  rebounds: 4
+                  assists: 8
+                  steals: 2
+                  blocks: 0
+                  turnovers: 0
+                  points: 29
+                summary: An example statline
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStats'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStats'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+              examples:
+                ExampleStats:
+                  value:
+                    url: http://127.0.0.1:8000/stats/1/
+                    id: 1
+                    game: http://127.0.0.1:8000/games/1/
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    player: http://127.0.0.1:8000/players/4/
+                    player_name: Tyrese Haliburton
+                    field_goals_made: 10
+                    field_goals_attempted: 20
+                    field_goal_percentage: 50
+                    three_pointers_made: 5
+                    three_pointers_attempted: 9
+                    three_point_percentage: 55.56
+                    free_throws_made: 4
+                    free_throws_attempted: 4
+                    free_throw_percentage: 100
+                    offensive_rebounds: 1
+                    defensive_rebounds: 3
+                    rebounds: 4
+                    assists: 8
+                    steals: 2
+                    blocks: 0
+                    turnovers: 0
+                    points: 29
+                  summary: An example statline
+          description: ''
+    delete:
+      operationId: stats_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stats.
+        required: true
+      tags:
+      - stats
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /teams/:
+    get:
+      operationId: teams_list
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team'
+              examples:
+                ExampleTeam:
+                  value:
+                  - url: http://127.0.0.1:8000/teams/1/
+                    id: 1
+                    name_abbreviation: MIA
+                    full_name: Miami Heat
+                    coach:
+                      url: http://127.0.0.1:8000/coaches/1/
+                      id: 1
+                      name: Erik Spoelstra
+                    players:
+                    - url: http://127.0.0.1:8000/players/2/
+                      id: 2
+                      name: Jimmy Butler
+                      position: SF
+                      jersey_number: 22
+                    - url: http://127.0.0.1:8000/players/3/
+                      id: 3
+                      name: Bam Adebayo
+                      position: C
+                      jersey_number: 13
+                    games:
+                    - url: http://127.0.0.1:8000/games/1/
+                      id: 1
+                      info: IND @ MIA - 2024-02-26T20:00:00Z
+                      box_score: http://127.0.0.1:8000/games/1/stats/
+                    - url: http://127.0.0.1:8000/games/3/
+                      id: 3
+                      info: MIA @ GSW - 2024-02-22T20:00:00Z
+                      box_score: http://127.0.0.1:8000/games/3/stats/
+                  summary: An example team
+          description: ''
+    post:
+      operationId: teams_create
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+            examples:
+              ExampleTeam:
+                value:
+                  url: http://127.0.0.1:8000/teams/1/
+                  id: 1
+                  name_abbreviation: MIA
+                  full_name: Miami Heat
+                  coach:
+                    url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                  players:
+                  - url: http://127.0.0.1:8000/players/2/
+                    id: 2
+                    name: Jimmy Butler
+                    position: SF
+                    jersey_number: 22
+                  - url: http://127.0.0.1:8000/players/3/
+                    id: 3
+                    name: Bam Adebayo
+                    position: C
+                    jersey_number: 13
+                  games:
+                  - url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    info: IND @ MIA - 2024-02-26T20:00:00Z
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  - url: http://127.0.0.1:8000/games/3/
+                    id: 3
+                    info: MIA @ GSW - 2024-02-22T20:00:00Z
+                    box_score: http://127.0.0.1:8000/games/3/stats/
+                summary: An example team
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Team'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Team'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+              examples:
+                ExampleTeam:
+                  value:
+                    url: http://127.0.0.1:8000/teams/1/
+                    id: 1
+                    name_abbreviation: MIA
+                    full_name: Miami Heat
+                    coach:
+                      url: http://127.0.0.1:8000/coaches/1/
+                      id: 1
+                      name: Erik Spoelstra
+                    players:
+                    - url: http://127.0.0.1:8000/players/2/
+                      id: 2
+                      name: Jimmy Butler
+                      position: SF
+                      jersey_number: 22
+                    - url: http://127.0.0.1:8000/players/3/
+                      id: 3
+                      name: Bam Adebayo
+                      position: C
+                      jersey_number: 13
+                    games:
+                    - url: http://127.0.0.1:8000/games/1/
+                      id: 1
+                      info: IND @ MIA - 2024-02-26T20:00:00Z
+                      box_score: http://127.0.0.1:8000/games/1/stats/
+                    - url: http://127.0.0.1:8000/games/3/
+                      id: 3
+                      info: MIA @ GSW - 2024-02-22T20:00:00Z
+                      box_score: http://127.0.0.1:8000/games/3/stats/
+                  summary: An example team
+          description: ''
+  /teams/{id}/:
+    get:
+      operationId: teams_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this team.
+        required: true
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+              examples:
+                ExampleTeam:
+                  value:
+                    url: http://127.0.0.1:8000/teams/1/
+                    id: 1
+                    name_abbreviation: MIA
+                    full_name: Miami Heat
+                    coach:
+                      url: http://127.0.0.1:8000/coaches/1/
+                      id: 1
+                      name: Erik Spoelstra
+                    players:
+                    - url: http://127.0.0.1:8000/players/2/
+                      id: 2
+                      name: Jimmy Butler
+                      position: SF
+                      jersey_number: 22
+                    - url: http://127.0.0.1:8000/players/3/
+                      id: 3
+                      name: Bam Adebayo
+                      position: C
+                      jersey_number: 13
+                    games:
+                    - url: http://127.0.0.1:8000/games/1/
+                      id: 1
+                      info: IND @ MIA - 2024-02-26T20:00:00Z
+                      box_score: http://127.0.0.1:8000/games/1/stats/
+                    - url: http://127.0.0.1:8000/games/3/
+                      id: 3
+                      info: MIA @ GSW - 2024-02-22T20:00:00Z
+                      box_score: http://127.0.0.1:8000/games/3/stats/
+                  summary: An example team
+          description: ''
+    put:
+      operationId: teams_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this team.
+        required: true
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+            examples:
+              ExampleTeam:
+                value:
+                  url: http://127.0.0.1:8000/teams/1/
+                  id: 1
+                  name_abbreviation: MIA
+                  full_name: Miami Heat
+                  coach:
+                    url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                  players:
+                  - url: http://127.0.0.1:8000/players/2/
+                    id: 2
+                    name: Jimmy Butler
+                    position: SF
+                    jersey_number: 22
+                  - url: http://127.0.0.1:8000/players/3/
+                    id: 3
+                    name: Bam Adebayo
+                    position: C
+                    jersey_number: 13
+                  games:
+                  - url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    info: IND @ MIA - 2024-02-26T20:00:00Z
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  - url: http://127.0.0.1:8000/games/3/
+                    id: 3
+                    info: MIA @ GSW - 2024-02-22T20:00:00Z
+                    box_score: http://127.0.0.1:8000/games/3/stats/
+                summary: An example team
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Team'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Team'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+              examples:
+                ExampleTeam:
+                  value:
+                    url: http://127.0.0.1:8000/teams/1/
+                    id: 1
+                    name_abbreviation: MIA
+                    full_name: Miami Heat
+                    coach:
+                      url: http://127.0.0.1:8000/coaches/1/
+                      id: 1
+                      name: Erik Spoelstra
+                    players:
+                    - url: http://127.0.0.1:8000/players/2/
+                      id: 2
+                      name: Jimmy Butler
+                      position: SF
+                      jersey_number: 22
+                    - url: http://127.0.0.1:8000/players/3/
+                      id: 3
+                      name: Bam Adebayo
+                      position: C
+                      jersey_number: 13
+                    games:
+                    - url: http://127.0.0.1:8000/games/1/
+                      id: 1
+                      info: IND @ MIA - 2024-02-26T20:00:00Z
+                      box_score: http://127.0.0.1:8000/games/1/stats/
+                    - url: http://127.0.0.1:8000/games/3/
+                      id: 3
+                      info: MIA @ GSW - 2024-02-22T20:00:00Z
+                      box_score: http://127.0.0.1:8000/games/3/stats/
+                  summary: An example team
+          description: ''
+    patch:
+      operationId: teams_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this team.
+        required: true
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTeam'
+            examples:
+              ExampleTeam:
+                value:
+                  url: http://127.0.0.1:8000/teams/1/
+                  id: 1
+                  name_abbreviation: MIA
+                  full_name: Miami Heat
+                  coach:
+                    url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                  players:
+                  - url: http://127.0.0.1:8000/players/2/
+                    id: 2
+                    name: Jimmy Butler
+                    position: SF
+                    jersey_number: 22
+                  - url: http://127.0.0.1:8000/players/3/
+                    id: 3
+                    name: Bam Adebayo
+                    position: C
+                    jersey_number: 13
+                  games:
+                  - url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    info: IND @ MIA - 2024-02-26T20:00:00Z
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  - url: http://127.0.0.1:8000/games/3/
+                    id: 3
+                    info: MIA @ GSW - 2024-02-22T20:00:00Z
+                    box_score: http://127.0.0.1:8000/games/3/stats/
+                summary: An example team
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTeam'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTeam'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+              examples:
+                ExampleTeam:
+                  value:
+                    url: http://127.0.0.1:8000/teams/1/
+                    id: 1
+                    name_abbreviation: MIA
+                    full_name: Miami Heat
+                    coach:
+                      url: http://127.0.0.1:8000/coaches/1/
+                      id: 1
+                      name: Erik Spoelstra
+                    players:
+                    - url: http://127.0.0.1:8000/players/2/
+                      id: 2
+                      name: Jimmy Butler
+                      position: SF
+                      jersey_number: 22
+                    - url: http://127.0.0.1:8000/players/3/
+                      id: 3
+                      name: Bam Adebayo
+                      position: C
+                      jersey_number: 13
+                    games:
+                    - url: http://127.0.0.1:8000/games/1/
+                      id: 1
+                      info: IND @ MIA - 2024-02-26T20:00:00Z
+                      box_score: http://127.0.0.1:8000/games/1/stats/
+                    - url: http://127.0.0.1:8000/games/3/
+                      id: 3
+                      info: MIA @ GSW - 2024-02-22T20:00:00Z
+                      box_score: http://127.0.0.1:8000/games/3/stats/
+                  summary: An example team
+          description: ''
+    delete:
+      operationId: teams_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this team.
+        required: true
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /teams/{team_pk}/coach/:
+    get:
+      operationId: teams_coach_list
+      parameters:
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Coach'
+              examples:
+                ExampleCoach:
+                  value:
+                  - url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                    date_of_birth: '1970-01-01'
+                    team: http://127.0.0.1:8000/teams/1/
+                    team_name_abbreviation: MIA
+                  summary: An example coach
+          description: ''
+    post:
+      operationId: teams_coach_create
+      parameters:
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Coach'
+            examples:
+              ExampleCoach:
+                value:
+                  url: http://127.0.0.1:8000/coaches/1/
+                  id: 1
+                  name: Erik Spoelstra
+                  date_of_birth: '1970-01-01'
+                  team: http://127.0.0.1:8000/teams/1/
+                  team_name_abbreviation: MIA
+                summary: An example coach
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Coach'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Coach'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+              examples:
+                ExampleCoach:
+                  value:
+                    url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                    date_of_birth: '1970-01-01'
+                    team: http://127.0.0.1:8000/teams/1/
+                    team_name_abbreviation: MIA
+                  summary: An example coach
+          description: ''
+  /teams/{team_pk}/coach/{id}/:
+    get:
+      operationId: teams_coach_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coach.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+              examples:
+                ExampleCoach:
+                  value:
+                    url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                    date_of_birth: '1970-01-01'
+                    team: http://127.0.0.1:8000/teams/1/
+                    team_name_abbreviation: MIA
+                  summary: An example coach
+          description: ''
+    put:
+      operationId: teams_coach_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coach.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Coach'
+            examples:
+              ExampleCoach:
+                value:
+                  url: http://127.0.0.1:8000/coaches/1/
+                  id: 1
+                  name: Erik Spoelstra
+                  date_of_birth: '1970-01-01'
+                  team: http://127.0.0.1:8000/teams/1/
+                  team_name_abbreviation: MIA
+                summary: An example coach
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Coach'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Coach'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+              examples:
+                ExampleCoach:
+                  value:
+                    url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                    date_of_birth: '1970-01-01'
+                    team: http://127.0.0.1:8000/teams/1/
+                    team_name_abbreviation: MIA
+                  summary: An example coach
+          description: ''
+    patch:
+      operationId: teams_coach_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coach.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCoach'
+            examples:
+              ExampleCoach:
+                value:
+                  url: http://127.0.0.1:8000/coaches/1/
+                  id: 1
+                  name: Erik Spoelstra
+                  date_of_birth: '1970-01-01'
+                  team: http://127.0.0.1:8000/teams/1/
+                  team_name_abbreviation: MIA
+                summary: An example coach
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCoach'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCoach'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+              examples:
+                ExampleCoach:
+                  value:
+                    url: http://127.0.0.1:8000/coaches/1/
+                    id: 1
+                    name: Erik Spoelstra
+                    date_of_birth: '1970-01-01'
+                    team: http://127.0.0.1:8000/teams/1/
+                    team_name_abbreviation: MIA
+                  summary: An example coach
+          description: ''
+    delete:
+      operationId: teams_coach_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this coach.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /teams/{team_pk}/games/:
+    get:
+      operationId: teams_games_list
+      parameters:
+      - in: path
+        name: team_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Game'
+              examples:
+                ExampleGame:
+                  value:
+                  - url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    date: '2024-02-26T20:00:00Z'
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    home_team: http://127.0.0.1:8000/teams/1/
+                    home_team_name_abbreviation: MIA
+                    away_team: http://127.0.0.1:8000/teams/2/
+                    away_team_name_abbreviation: IND
+                    home_team_score: 36
+                    away_team_score: 29
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  summary: An example game
+          description: ''
+    post:
+      operationId: teams_games_create
+      parameters:
+      - in: path
+        name: team_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Game'
+            examples:
+              ExampleGame:
+                value:
+                  url: http://127.0.0.1:8000/games/1/
+                  id: 1
+                  date: '2024-02-26T20:00:00Z'
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  home_team: http://127.0.0.1:8000/teams/1/
+                  home_team_name_abbreviation: MIA
+                  away_team: http://127.0.0.1:8000/teams/2/
+                  away_team_name_abbreviation: IND
+                  home_team_score: 36
+                  away_team_score: 29
+                  box_score: http://127.0.0.1:8000/games/1/stats/
+                summary: An example game
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Game'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Game'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+              examples:
+                ExampleGame:
+                  value:
+                    url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    date: '2024-02-26T20:00:00Z'
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    home_team: http://127.0.0.1:8000/teams/1/
+                    home_team_name_abbreviation: MIA
+                    away_team: http://127.0.0.1:8000/teams/2/
+                    away_team_name_abbreviation: IND
+                    home_team_score: 36
+                    away_team_score: 29
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  summary: An example game
+          description: ''
+  /teams/{team_pk}/games/{id}/:
+    get:
+      operationId: teams_games_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this game.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+              examples:
+                ExampleGame:
+                  value:
+                    url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    date: '2024-02-26T20:00:00Z'
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    home_team: http://127.0.0.1:8000/teams/1/
+                    home_team_name_abbreviation: MIA
+                    away_team: http://127.0.0.1:8000/teams/2/
+                    away_team_name_abbreviation: IND
+                    home_team_score: 36
+                    away_team_score: 29
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  summary: An example game
+          description: ''
+    put:
+      operationId: teams_games_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this game.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Game'
+            examples:
+              ExampleGame:
+                value:
+                  url: http://127.0.0.1:8000/games/1/
+                  id: 1
+                  date: '2024-02-26T20:00:00Z'
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  home_team: http://127.0.0.1:8000/teams/1/
+                  home_team_name_abbreviation: MIA
+                  away_team: http://127.0.0.1:8000/teams/2/
+                  away_team_name_abbreviation: IND
+                  home_team_score: 36
+                  away_team_score: 29
+                  box_score: http://127.0.0.1:8000/games/1/stats/
+                summary: An example game
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Game'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Game'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+              examples:
+                ExampleGame:
+                  value:
+                    url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    date: '2024-02-26T20:00:00Z'
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    home_team: http://127.0.0.1:8000/teams/1/
+                    home_team_name_abbreviation: MIA
+                    away_team: http://127.0.0.1:8000/teams/2/
+                    away_team_name_abbreviation: IND
+                    home_team_score: 36
+                    away_team_score: 29
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  summary: An example game
+          description: ''
+    patch:
+      operationId: teams_games_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this game.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGame'
+            examples:
+              ExampleGame:
+                value:
+                  url: http://127.0.0.1:8000/games/1/
+                  id: 1
+                  date: '2024-02-26T20:00:00Z'
+                  game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                  home_team: http://127.0.0.1:8000/teams/1/
+                  home_team_name_abbreviation: MIA
+                  away_team: http://127.0.0.1:8000/teams/2/
+                  away_team_name_abbreviation: IND
+                  home_team_score: 36
+                  away_team_score: 29
+                  box_score: http://127.0.0.1:8000/games/1/stats/
+                summary: An example game
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGame'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGame'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+              examples:
+                ExampleGame:
+                  value:
+                    url: http://127.0.0.1:8000/games/1/
+                    id: 1
+                    date: '2024-02-26T20:00:00Z'
+                    game_info: IND @ MIA - 2024-02-26 20:00:00+00:00
+                    home_team: http://127.0.0.1:8000/teams/1/
+                    home_team_name_abbreviation: MIA
+                    away_team: http://127.0.0.1:8000/teams/2/
+                    away_team_name_abbreviation: IND
+                    home_team_score: 36
+                    away_team_score: 29
+                    box_score: http://127.0.0.1:8000/games/1/stats/
+                  summary: An example game
+          description: ''
+    delete:
+      operationId: teams_games_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this game.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /teams/{team_pk}/players/:
+    get:
+      operationId: teams_players_list
+      parameters:
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Player'
+              examples:
+                ExamplePlayer:
+                  value:
+                  - url: http://127.0.0.1:8000/players/1/
+                    id: 1
+                    name: Stephen Curry
+                    team: http://127.0.0.1:8000/teams/3/
+                    team_name_abbreviation: GSW
+                    date_of_birth: '1988-01-01'
+                    country: USA
+                    position: PG
+                    height: 188
+                    weight: 90
+                    jersey_number: 30
+                    points_per_game: 36
+                    offensive_rebounds_per_game: 0
+                    defensive_rebounds_per_game: 2
+                    rebounds_per_game: 2
+                    assists_per_game: 5
+                    steals_per_game: 0
+                    blocks_per_game: 0
+                    turnovers_per_game: 1
+                    field_goal_percentage: 60.87
+                    three_point_field_goal_percentage: 46.15
+                    free_throw_percentage: 100
+                    all_stats: http://127.0.0.1:8000/players/1/stats/
+                  summary: An example player
+          description: ''
+    post:
+      operationId: teams_players_create
+      parameters:
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+            examples:
+              ExamplePlayer:
+                value:
+                  url: http://127.0.0.1:8000/players/1/
+                  id: 1
+                  name: Stephen Curry
+                  team: http://127.0.0.1:8000/teams/3/
+                  team_name_abbreviation: GSW
+                  date_of_birth: '1988-01-01'
+                  country: USA
+                  position: PG
+                  height: 188
+                  weight: 90
+                  jersey_number: 30
+                  points_per_game: 36
+                  offensive_rebounds_per_game: 0
+                  defensive_rebounds_per_game: 2
+                  rebounds_per_game: 2
+                  assists_per_game: 5
+                  steals_per_game: 0
+                  blocks_per_game: 0
+                  turnovers_per_game: 1
+                  field_goal_percentage: 60.87
+                  three_point_field_goal_percentage: 46.15
+                  free_throw_percentage: 100
+                  all_stats: http://127.0.0.1:8000/players/1/stats/
+                summary: An example player
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Player'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Player'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+              examples:
+                ExamplePlayer:
+                  value:
+                    url: http://127.0.0.1:8000/players/1/
+                    id: 1
+                    name: Stephen Curry
+                    team: http://127.0.0.1:8000/teams/3/
+                    team_name_abbreviation: GSW
+                    date_of_birth: '1988-01-01'
+                    country: USA
+                    position: PG
+                    height: 188
+                    weight: 90
+                    jersey_number: 30
+                    points_per_game: 36
+                    offensive_rebounds_per_game: 0
+                    defensive_rebounds_per_game: 2
+                    rebounds_per_game: 2
+                    assists_per_game: 5
+                    steals_per_game: 0
+                    blocks_per_game: 0
+                    turnovers_per_game: 1
+                    field_goal_percentage: 60.87
+                    three_point_field_goal_percentage: 46.15
+                    free_throw_percentage: 100
+                    all_stats: http://127.0.0.1:8000/players/1/stats/
+                  summary: An example player
+          description: ''
+  /teams/{team_pk}/players/{id}/:
+    get:
+      operationId: teams_players_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this player.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+              examples:
+                ExamplePlayer:
+                  value:
+                    url: http://127.0.0.1:8000/players/1/
+                    id: 1
+                    name: Stephen Curry
+                    team: http://127.0.0.1:8000/teams/3/
+                    team_name_abbreviation: GSW
+                    date_of_birth: '1988-01-01'
+                    country: USA
+                    position: PG
+                    height: 188
+                    weight: 90
+                    jersey_number: 30
+                    points_per_game: 36
+                    offensive_rebounds_per_game: 0
+                    defensive_rebounds_per_game: 2
+                    rebounds_per_game: 2
+                    assists_per_game: 5
+                    steals_per_game: 0
+                    blocks_per_game: 0
+                    turnovers_per_game: 1
+                    field_goal_percentage: 60.87
+                    three_point_field_goal_percentage: 46.15
+                    free_throw_percentage: 100
+                    all_stats: http://127.0.0.1:8000/players/1/stats/
+                  summary: An example player
+          description: ''
+    put:
+      operationId: teams_players_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this player.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+            examples:
+              ExamplePlayer:
+                value:
+                  url: http://127.0.0.1:8000/players/1/
+                  id: 1
+                  name: Stephen Curry
+                  team: http://127.0.0.1:8000/teams/3/
+                  team_name_abbreviation: GSW
+                  date_of_birth: '1988-01-01'
+                  country: USA
+                  position: PG
+                  height: 188
+                  weight: 90
+                  jersey_number: 30
+                  points_per_game: 36
+                  offensive_rebounds_per_game: 0
+                  defensive_rebounds_per_game: 2
+                  rebounds_per_game: 2
+                  assists_per_game: 5
+                  steals_per_game: 0
+                  blocks_per_game: 0
+                  turnovers_per_game: 1
+                  field_goal_percentage: 60.87
+                  three_point_field_goal_percentage: 46.15
+                  free_throw_percentage: 100
+                  all_stats: http://127.0.0.1:8000/players/1/stats/
+                summary: An example player
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Player'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Player'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+              examples:
+                ExamplePlayer:
+                  value:
+                    url: http://127.0.0.1:8000/players/1/
+                    id: 1
+                    name: Stephen Curry
+                    team: http://127.0.0.1:8000/teams/3/
+                    team_name_abbreviation: GSW
+                    date_of_birth: '1988-01-01'
+                    country: USA
+                    position: PG
+                    height: 188
+                    weight: 90
+                    jersey_number: 30
+                    points_per_game: 36
+                    offensive_rebounds_per_game: 0
+                    defensive_rebounds_per_game: 2
+                    rebounds_per_game: 2
+                    assists_per_game: 5
+                    steals_per_game: 0
+                    blocks_per_game: 0
+                    turnovers_per_game: 1
+                    field_goal_percentage: 60.87
+                    three_point_field_goal_percentage: 46.15
+                    free_throw_percentage: 100
+                    all_stats: http://127.0.0.1:8000/players/1/stats/
+                  summary: An example player
+          description: ''
+    patch:
+      operationId: teams_players_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this player.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayer'
+            examples:
+              ExamplePlayer:
+                value:
+                  url: http://127.0.0.1:8000/players/1/
+                  id: 1
+                  name: Stephen Curry
+                  team: http://127.0.0.1:8000/teams/3/
+                  team_name_abbreviation: GSW
+                  date_of_birth: '1988-01-01'
+                  country: USA
+                  position: PG
+                  height: 188
+                  weight: 90
+                  jersey_number: 30
+                  points_per_game: 36
+                  offensive_rebounds_per_game: 0
+                  defensive_rebounds_per_game: 2
+                  rebounds_per_game: 2
+                  assists_per_game: 5
+                  steals_per_game: 0
+                  blocks_per_game: 0
+                  turnovers_per_game: 1
+                  field_goal_percentage: 60.87
+                  three_point_field_goal_percentage: 46.15
+                  free_throw_percentage: 100
+                  all_stats: http://127.0.0.1:8000/players/1/stats/
+                summary: An example player
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayer'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+              examples:
+                ExamplePlayer:
+                  value:
+                    url: http://127.0.0.1:8000/players/1/
+                    id: 1
+                    name: Stephen Curry
+                    team: http://127.0.0.1:8000/teams/3/
+                    team_name_abbreviation: GSW
+                    date_of_birth: '1988-01-01'
+                    country: USA
+                    position: PG
+                    height: 188
+                    weight: 90
+                    jersey_number: 30
+                    points_per_game: 36
+                    offensive_rebounds_per_game: 0
+                    defensive_rebounds_per_game: 2
+                    rebounds_per_game: 2
+                    assists_per_game: 5
+                    steals_per_game: 0
+                    blocks_per_game: 0
+                    turnovers_per_game: 1
+                    field_goal_percentage: 60.87
+                    three_point_field_goal_percentage: 46.15
+                    free_throw_percentage: 100
+                    all_stats: http://127.0.0.1:8000/players/1/stats/
+                  summary: An example player
+          description: ''
+    delete:
+      operationId: teams_players_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this player.
+        required: true
+      - in: path
+        name: team_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - teams
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    Coach:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+        team:
+          type: string
+          format: uri
+          nullable: true
+        team_name_abbreviation:
+          type: string
+          readOnly: true
+      required:
+      - date_of_birth
+      - id
+      - name
+      - team_name_abbreviation
+      - url
+    Game:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        date:
+          type: string
+          format: date-time
+        game_info:
+          type: string
+          readOnly: true
+        home_team:
+          type: string
+          format: uri
+        home_team_name_abbreviation:
+          type: string
+          readOnly: true
+        away_team:
+          type: string
+          format: uri
+        away_team_name_abbreviation:
+          type: string
+          readOnly: true
+        home_team_score:
+          type: integer
+          readOnly: true
+        away_team_score:
+          type: integer
+          readOnly: true
+        box_score:
+          type: string
+          readOnly: true
+      required:
+      - away_team
+      - away_team_name_abbreviation
+      - away_team_score
+      - box_score
+      - date
+      - game_info
+      - home_team
+      - home_team_name_abbreviation
+      - home_team_score
+      - id
+      - url
+    PatchedCoach:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+        team:
+          type: string
+          format: uri
+          nullable: true
+        team_name_abbreviation:
+          type: string
+          readOnly: true
+    PatchedGame:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        date:
+          type: string
+          format: date-time
+        game_info:
+          type: string
+          readOnly: true
+        home_team:
+          type: string
+          format: uri
+        home_team_name_abbreviation:
+          type: string
+          readOnly: true
+        away_team:
+          type: string
+          format: uri
+        away_team_name_abbreviation:
+          type: string
+          readOnly: true
+        home_team_score:
+          type: integer
+          readOnly: true
+        away_team_score:
+          type: integer
+          readOnly: true
+        box_score:
+          type: string
+          readOnly: true
+    PatchedPlayer:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        team:
+          type: string
+          format: uri
+          nullable: true
+        team_name_abbreviation:
+          type: string
+          readOnly: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        country:
+          type: string
+          maxLength: 60
+        position:
+          $ref: '#/components/schemas/PositionEnum'
+        height:
+          type: integer
+        weight:
+          type: integer
+        jersey_number:
+          type: integer
+          nullable: true
+        points_per_game:
+          type: number
+          format: float
+          readOnly: true
+        offensive_rebounds_per_game:
+          type: number
+          format: float
+          readOnly: true
+        defensive_rebounds_per_game:
+          type: number
+          format: float
+          readOnly: true
+        rebounds_per_game:
+          type: number
+          format: float
+          readOnly: true
+        assists_per_game:
+          type: number
+          format: float
+          readOnly: true
+        steals_per_game:
+          type: number
+          format: float
+          readOnly: true
+        blocks_per_game:
+          type: number
+          format: float
+          readOnly: true
+        turnovers_per_game:
+          type: number
+          format: float
+          readOnly: true
+        field_goal_percentage:
+          type: number
+          format: float
+          readOnly: true
+        three_point_field_goal_percentage:
+          type: number
+          format: float
+          readOnly: true
+        free_throw_percentage:
+          type: number
+          format: float
+          readOnly: true
+        all_stats:
+          type: string
+          readOnly: true
+    PatchedStats:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        game:
+          type: string
+          format: uri
+        game_info:
+          type: string
+          readOnly: true
+        player:
+          type: string
+          format: uri
+        player_name:
+          type: string
+          readOnly: true
+        field_goals_made:
+          type: integer
+        field_goals_attempted:
+          type: integer
+        field_goal_percentage:
+          type: number
+          format: float
+          readOnly: true
+        three_pointers_made:
+          type: integer
+        three_pointers_attempted:
+          type: integer
+        three_point_percentage:
+          type: number
+          format: float
+          readOnly: true
+        free_throws_made:
+          type: integer
+        free_throws_attempted:
+          type: integer
+        free_throw_percentage:
+          type: number
+          format: float
+          readOnly: true
+        offensive_rebounds:
+          type: integer
+        defensive_rebounds:
+          type: integer
+        rebounds:
+          type: integer
+          readOnly: true
+        assists:
+          type: integer
+        steals:
+          type: integer
+        blocks:
+          type: integer
+        turnovers:
+          type: integer
+        points:
+          type: integer
+          readOnly: true
+    PatchedTeam:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        name_abbreviation:
+          type: string
+          maxLength: 3
+        full_name:
+          type: string
+          maxLength: 100
+        coach:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+        players:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+        games:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+    Player:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        team:
+          type: string
+          format: uri
+          nullable: true
+        team_name_abbreviation:
+          type: string
+          readOnly: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        country:
+          type: string
+          maxLength: 60
+        position:
+          $ref: '#/components/schemas/PositionEnum'
+        height:
+          type: integer
+        weight:
+          type: integer
+        jersey_number:
+          type: integer
+          nullable: true
+        points_per_game:
+          type: number
+          format: float
+          readOnly: true
+        offensive_rebounds_per_game:
+          type: number
+          format: float
+          readOnly: true
+        defensive_rebounds_per_game:
+          type: number
+          format: float
+          readOnly: true
+        rebounds_per_game:
+          type: number
+          format: float
+          readOnly: true
+        assists_per_game:
+          type: number
+          format: float
+          readOnly: true
+        steals_per_game:
+          type: number
+          format: float
+          readOnly: true
+        blocks_per_game:
+          type: number
+          format: float
+          readOnly: true
+        turnovers_per_game:
+          type: number
+          format: float
+          readOnly: true
+        field_goal_percentage:
+          type: number
+          format: float
+          readOnly: true
+        three_point_field_goal_percentage:
+          type: number
+          format: float
+          readOnly: true
+        free_throw_percentage:
+          type: number
+          format: float
+          readOnly: true
+        all_stats:
+          type: string
+          readOnly: true
+      required:
+      - all_stats
+      - assists_per_game
+      - blocks_per_game
+      - country
+      - defensive_rebounds_per_game
+      - field_goal_percentage
+      - free_throw_percentage
+      - height
+      - id
+      - name
+      - offensive_rebounds_per_game
+      - points_per_game
+      - position
+      - rebounds_per_game
+      - steals_per_game
+      - team_name_abbreviation
+      - three_point_field_goal_percentage
+      - turnovers_per_game
+      - url
+      - weight
+    PositionEnum:
+      enum:
+      - PG
+      - SG
+      - SF
+      - PF
+      - C
+      type: string
+      description: |-
+        * `PG` - Point Guard
+        * `SG` - Shooting Guard
+        * `SF` - Small Forward
+        * `PF` - Power Forward
+        * `C` - Center
+    Stats:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        game:
+          type: string
+          format: uri
+        game_info:
+          type: string
+          readOnly: true
+        player:
+          type: string
+          format: uri
+        player_name:
+          type: string
+          readOnly: true
+        field_goals_made:
+          type: integer
+        field_goals_attempted:
+          type: integer
+        field_goal_percentage:
+          type: number
+          format: float
+          readOnly: true
+        three_pointers_made:
+          type: integer
+        three_pointers_attempted:
+          type: integer
+        three_point_percentage:
+          type: number
+          format: float
+          readOnly: true
+        free_throws_made:
+          type: integer
+        free_throws_attempted:
+          type: integer
+        free_throw_percentage:
+          type: number
+          format: float
+          readOnly: true
+        offensive_rebounds:
+          type: integer
+        defensive_rebounds:
+          type: integer
+        rebounds:
+          type: integer
+          readOnly: true
+        assists:
+          type: integer
+        steals:
+          type: integer
+        blocks:
+          type: integer
+        turnovers:
+          type: integer
+        points:
+          type: integer
+          readOnly: true
+      required:
+      - assists
+      - blocks
+      - defensive_rebounds
+      - field_goal_percentage
+      - field_goals_attempted
+      - field_goals_made
+      - free_throw_percentage
+      - free_throws_attempted
+      - free_throws_made
+      - game
+      - game_info
+      - id
+      - offensive_rebounds
+      - player
+      - player_name
+      - points
+      - rebounds
+      - steals
+      - three_point_percentage
+      - three_pointers_attempted
+      - three_pointers_made
+      - turnovers
+      - url
+    Team:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+        id:
+          type: integer
+          readOnly: true
+        name_abbreviation:
+          type: string
+          maxLength: 3
+        full_name:
+          type: string
+          maxLength: 100
+        coach:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+        players:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+        games:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+      required:
+      - coach
+      - full_name
+      - games
+      - id
+      - name_abbreviation
+      - players
+      - url
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
