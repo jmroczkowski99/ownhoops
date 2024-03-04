@@ -2,6 +2,9 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
+from drf_spectacular.utils import extend_schema_field, extend_schema_serializer, OpenApiExample
+from drf_spectacular.types import OpenApiTypes
 from api.models import Team, Coach, Player, Game, Stats
 from api.validators import (
     validate_alpha_and_title,
@@ -11,10 +14,58 @@ from api.validators import (
     validate_nonnegative,
     validate_title_or_number_start,
 )
-from django.urls import reverse
 import datetime
 
 
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            'Example Team',
+            summary='An example team',
+            value={
+                "url": "http://127.0.0.1:8000/teams/1/",
+                "id": 1,
+                "name_abbreviation": "MIA",
+                "full_name": "Miami Heat",
+                "coach": {
+                    "url": "http://127.0.0.1:8000/coaches/1/",
+                    "id": 1,
+                    "name": "Erik Spoelstra"
+                },
+                "players": [
+                    {
+                        "url": "http://127.0.0.1:8000/players/2/",
+                        "id": 2,
+                        "name": "Jimmy Butler",
+                        "position": "SF",
+                        "jersey_number": 22
+                    },
+                    {
+                        "url": "http://127.0.0.1:8000/players/3/",
+                        "id": 3,
+                        "name": "Bam Adebayo",
+                        "position": "C",
+                        "jersey_number": 13
+                    }
+                ],
+                "games": [
+                    {
+                        "url": "http://127.0.0.1:8000/games/1/",
+                        "id": 1,
+                        "info": "IND @ MIA - 2024-02-26T20:00:00Z",
+                        "box_score": "http://127.0.0.1:8000/games/1/stats/"
+                    },
+                    {
+                        "url": "http://127.0.0.1:8000/games/3/",
+                        "id": 3,
+                        "info": "MIA @ GSW - 2024-02-22T20:00:00Z",
+                        "box_score": "http://127.0.0.1:8000/games/3/stats/"
+                    }
+                ]
+            }
+        )
+    ]
+)
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     players = serializers.SerializerMethodField()
     coach = serializers.SerializerMethodField()
@@ -24,6 +75,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         model = Team
         fields = ['url', 'id', 'name_abbreviation', 'full_name', 'coach', 'players', 'games']
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_coach(self, obj):
         coach_instance = obj.coach.first()
         coach_data = CoachSerializer(coach_instance, context=self.context).data
@@ -33,6 +85,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'name': coach_data.get('name', None),
         }
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_players(self, obj):
         players_queryset = obj.players.all()
         players_data = PlayerSerializer(players_queryset, many=True, context=self.context).data
@@ -47,6 +100,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             for player_data in players_data
         ]
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_games(self, obj):
         games_queryset = obj.home_games.all() | obj.away_games.all()
         games_data = GameSerializer(games_queryset, many=True, context=self.context).data
@@ -85,90 +139,22 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         return value
 
 
-class GameSerializer(serializers.HyperlinkedModelSerializer):
-    game_info = serializers.SerializerMethodField()
-    home_team_name_abbreviation = serializers.ReadOnlyField(source='home_team.name_abbreviation')
-    away_team_name_abbreviation = serializers.ReadOnlyField(source='away_team.name_abbreviation')
-    home_team_score = serializers.SerializerMethodField()
-    away_team_score = serializers.SerializerMethodField()
-    box_score = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Game
-        fields = [
-            'url',
-            'id',
-            'date',
-            'game_info',
-            'home_team',
-            'home_team_name_abbreviation',
-            'away_team',
-            'away_team_name_abbreviation',
-            'home_team_score',
-            'away_team_score',
-            'box_score',
-        ]
-
-    def get_game_info(self, obj):
-        away_team = obj.away_team.name_abbreviation
-        home_team = obj.home_team.name_abbreviation
-        game_date = obj.date
-        return f'{away_team} @ {home_team} - {game_date}'
-
-    def get_home_team_score(self, obj):
-        home_team_stats = Stats.objects.filter(game=obj, player__team=obj.home_team)
-        total_points = sum(
-            StatsSerializer(stats, context=self.context).data.get('points', 0)
-            for stats in home_team_stats
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            'Example Coach',
+            summary='An example coach',
+            value={
+                "url": "http://127.0.0.1:8000/coaches/1/",
+                "id": 1,
+                "name": "Erik Spoelstra",
+                "date_of_birth": "1970-01-01",
+                "team": "http://127.0.0.1:8000/teams/1/",
+                "team_name_abbreviation": "MIA"
+            }
         )
-        return total_points
-
-    def get_away_team_score(self, obj):
-        away_team_stats = Stats.objects.filter(game=obj, player__team=obj.away_team)
-        total_points = sum(
-            StatsSerializer(stats, context=self.context).data.get('points', 0)
-            for stats in away_team_stats
-        )
-        return total_points
-
-    def get_box_score(self, obj):
-        stats_url = reverse('game-detail', args=[obj.id]) + 'stats/'
-        return self.context['request'].build_absolute_uri(stats_url)
-
-    def validate(self, data):
-        home_team = data['home_team']
-        away_team = data['away_team']
-        date = data['date']
-
-        if home_team == away_team:
-            raise serializers.ValidationError('Home team and Away team cannot be the same.')
-
-        if Game.objects.filter(
-            (models.Q(home_team=home_team, away_team=away_team) |
-             models.Q(home_team=away_team, away_team=home_team)),
-            date=date
-        ).exclude(pk=self.instance.pk if self.instance else None).exists():
-            raise serializers.ValidationError('Cannot have two games between the same teams at the same time.')
-
-        if Game.objects.filter(
-            (Q(home_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
-                Q(home_team=home_team, date__lte=date + datetime.timedelta(hours=2))) |
-            (Q(away_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
-                Q(away_team=home_team, date__lte=date + datetime.timedelta(hours=2)))
-        ).exclude(pk=self.instance.pk if self.instance else None).exists():
-            raise serializers.ValidationError('Home team has another game around the same time.')
-
-        if Game.objects.filter(
-            (Q(away_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
-                Q(away_team=away_team, date__lte=date + datetime.timedelta(hours=2))) |
-            (Q(home_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
-                Q(home_team=away_team, date__lte=date + datetime.timedelta(hours=2)))
-        ).exclude(pk=self.instance.pk if self.instance else None).exists():
-            raise serializers.ValidationError('Away team has another game around the same time.')
-
-        return data
-
-
+    ]
+)
 class CoachSerializer(serializers.HyperlinkedModelSerializer):
     team_name_abbreviation = serializers.ReadOnlyField(source='team.name_abbreviation')
 
@@ -179,8 +165,14 @@ class CoachSerializer(serializers.HyperlinkedModelSerializer):
     def validate(self, data):
         team = data.get('team')
 
-        if team and Coach.objects.filter(team=team).exclude(pk=self.instance if self.instance else None).exists():
-            raise serializers.ValidationError('This team already has a coach.')
+        if team:
+            existing_coach_query = Coach.objects.filter(team=team)
+
+            if self.instance:
+                existing_coach_query = existing_coach_query.exclude(pk=self.instance.pk)
+
+            if existing_coach_query.exists():
+                raise serializers.ValidationError('This team already has a coach.')
 
         return data
 
@@ -191,6 +183,39 @@ class CoachSerializer(serializers.HyperlinkedModelSerializer):
         return validate_over_eighteen(value, 'Coach has to be at least 18 years old.')
 
 
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            'Example Player',
+            summary='An example player',
+            value={
+                "url": "http://127.0.0.1:8000/players/1/",
+                "id": 1,
+                "name": "Stephen Curry",
+                "team": "http://127.0.0.1:8000/teams/3/",
+                "team_name_abbreviation": "GSW",
+                "date_of_birth": "1988-01-01",
+                "country": "USA",
+                "position": "PG",
+                "height": 188,
+                "weight": 90,
+                "jersey_number": 30,
+                "points_per_game": 36,
+                "offensive_rebounds_per_game": 0,
+                "defensive_rebounds_per_game": 2,
+                "rebounds_per_game": 2,
+                "assists_per_game": 5,
+                "steals_per_game": 0,
+                "blocks_per_game": 0,
+                "turnovers_per_game": 1,
+                "field_goal_percentage": 60.87,
+                "three_point_field_goal_percentage": 46.15,
+                "free_throw_percentage": 100,
+                "all_stats": "http://127.0.0.1:8000/players/1/stats/"
+            }
+        )
+    ]
+)
 class PlayerSerializer(serializers.HyperlinkedModelSerializer):
     team_name_abbreviation = serializers.ReadOnlyField(source='team.name_abbreviation')
     points_per_game = serializers.SerializerMethodField()
@@ -270,39 +295,51 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
         else:
             return round((stat_made/stat_attempted) * 100, 2)
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_points_per_game(self, obj):
         return self.calculate_stat_per_game(obj, 'points')
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_offensive_rebounds_per_game(self, obj):
         return self.calculate_stat_per_game(obj, 'offensive_rebounds')
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_defensive_rebounds_per_game(self, obj):
         return self.calculate_stat_per_game(obj, 'defensive_rebounds')
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_rebounds_per_game(self, obj):
         return self.calculate_stat_per_game(obj, 'rebounds')
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_assists_per_game(self, obj):
         return self.calculate_stat_per_game(obj, 'assists')
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_steals_per_game(self, obj):
         return self.calculate_stat_per_game(obj, 'steals')
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_blocks_per_game(self, obj):
         return self.calculate_stat_per_game(obj, 'blocks')
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_turnovers_per_game(self, obj):
         return self.calculate_stat_per_game(obj, 'turnovers')
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_field_goal_percentage(self, obj):
         return self.calculate_stat_percentage(obj, 'field_goals_made', 'field_goals_attempted')
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_three_point_field_goal_percentage(self, obj):
         return self.calculate_stat_percentage(obj, 'three_pointers_made', 'three_pointers_attempted')
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_free_throw_percentage(self, obj):
         return self.calculate_stat_percentage(obj, 'free_throws_made', 'free_throws_attempted')
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_all_stats(self, obj):
         stats_url = reverse('player-detail', args=[obj.id]) + 'stats/'
         return self.context['request'].build_absolute_uri(stats_url)
@@ -335,6 +372,148 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
         return value
 
 
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            'Example Game',
+            summary='An example game',
+            value={
+                "url": "http://127.0.0.1:8000/games/1/",
+                "id": 1,
+                "date": "2024-02-26T20:00:00Z",
+                "game_info": "IND @ MIA - 2024-02-26 20:00:00+00:00",
+                "home_team": "http://127.0.0.1:8000/teams/1/",
+                "home_team_name_abbreviation": "MIA",
+                "away_team": "http://127.0.0.1:8000/teams/2/",
+                "away_team_name_abbreviation": "IND",
+                "home_team_score": 36,
+                "away_team_score": 29,
+                "box_score": "http://127.0.0.1:8000/games/1/stats/"
+            }
+        )
+    ]
+)
+class GameSerializer(serializers.HyperlinkedModelSerializer):
+    game_info = serializers.SerializerMethodField()
+    home_team_name_abbreviation = serializers.ReadOnlyField(source='home_team.name_abbreviation')
+    away_team_name_abbreviation = serializers.ReadOnlyField(source='away_team.name_abbreviation')
+    home_team_score = serializers.SerializerMethodField()
+    away_team_score = serializers.SerializerMethodField()
+    box_score = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Game
+        fields = [
+            'url',
+            'id',
+            'date',
+            'game_info',
+            'home_team',
+            'home_team_name_abbreviation',
+            'away_team',
+            'away_team_name_abbreviation',
+            'home_team_score',
+            'away_team_score',
+            'box_score',
+        ]
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_game_info(self, obj):
+        away_team = obj.away_team.name_abbreviation
+        home_team = obj.home_team.name_abbreviation
+        game_date = obj.date
+        return f'{away_team} @ {home_team} - {game_date}'
+
+    @extend_schema_field(OpenApiTypes.INT)
+    def get_home_team_score(self, obj):
+        home_team_stats = Stats.objects.filter(game=obj, player__team=obj.home_team)
+        total_points = sum(
+            StatsSerializer(stats, context=self.context).data.get('points', 0)
+            for stats in home_team_stats
+        )
+        return total_points
+
+    @extend_schema_field(OpenApiTypes.INT)
+    def get_away_team_score(self, obj):
+        away_team_stats = Stats.objects.filter(game=obj, player__team=obj.away_team)
+        total_points = sum(
+            StatsSerializer(stats, context=self.context).data.get('points', 0)
+            for stats in away_team_stats
+        )
+        return total_points
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_box_score(self, obj):
+        stats_url = reverse('game-detail', args=[obj.id]) + 'stats/'
+        return self.context['request'].build_absolute_uri(stats_url)
+
+    def validate(self, data):
+        home_team = data['home_team']
+        away_team = data['away_team']
+        date = data['date']
+
+        if home_team == away_team:
+            raise serializers.ValidationError('Home team and Away team cannot be the same.')
+
+        if Game.objects.filter(
+            (models.Q(home_team=home_team, away_team=away_team) |
+             models.Q(home_team=away_team, away_team=home_team)),
+            date=date
+        ).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError('Cannot have two games between the same teams at the same time.')
+
+        if Game.objects.filter(
+            (Q(home_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(home_team=home_team, date__lte=date + datetime.timedelta(hours=2))) |
+            (Q(away_team=home_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(away_team=home_team, date__lte=date + datetime.timedelta(hours=2)))
+        ).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError('Home team has another game around the same time.')
+
+        if Game.objects.filter(
+            (Q(away_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(away_team=away_team, date__lte=date + datetime.timedelta(hours=2))) |
+            (Q(home_team=away_team, date__gte=date - datetime.timedelta(hours=2)) &
+                Q(home_team=away_team, date__lte=date + datetime.timedelta(hours=2)))
+        ).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError('Away team has another game around the same time.')
+
+        return data
+
+
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            'Example Stats',
+            summary='An example statline',
+            value={
+                "url": "http://127.0.0.1:8000/stats/1/",
+                "id": 1,
+                "game": "http://127.0.0.1:8000/games/1/",
+                "game_info": "IND @ MIA - 2024-02-26 20:00:00+00:00",
+                "player": "http://127.0.0.1:8000/players/4/",
+                "player_name": "Tyrese Haliburton",
+                "field_goals_made": 10,
+                "field_goals_attempted": 20,
+                "field_goal_percentage": 50,
+                "three_pointers_made": 5,
+                "three_pointers_attempted": 9,
+                "three_point_percentage": 55.56,
+                "free_throws_made": 4,
+                "free_throws_attempted": 4,
+                "free_throw_percentage": 100,
+                "offensive_rebounds": 1,
+                "defensive_rebounds": 3,
+                "rebounds": 4,
+                "assists": 8,
+                "steals": 2,
+                "blocks": 0,
+                "turnovers": 0,
+                "points": 29
+            }
+        )
+    ]
+)
 class StatsSerializer(serializers.HyperlinkedModelSerializer):
     game_info = serializers.SerializerMethodField()
     player_name = serializers.ReadOnlyField(source='player.name')
@@ -372,33 +551,39 @@ class StatsSerializer(serializers.HyperlinkedModelSerializer):
             'points',
         ]
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_game_info(self, obj):
         away_team = obj.game.away_team.name_abbreviation
         home_team = obj.game.home_team.name_abbreviation
         game_date = obj.game.date
         return f'{away_team} @ {home_team} - {game_date}'
 
+    @extend_schema_field(OpenApiTypes.INT)
     def get_points(self, obj):
         one_pointers = obj.free_throws_made
         two_pointers = obj.field_goals_made - obj.three_pointers_made
         three_pointers = obj.three_pointers_made
         return one_pointers + (two_pointers*2) + (three_pointers*3)
 
+    @extend_schema_field(OpenApiTypes.INT)
     def get_rebounds(self, obj):
         return obj.offensive_rebounds + obj.defensive_rebounds
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_field_goal_percentage(self, obj):
         if obj.field_goals_attempted == 0:
             return 0
         else:
             return round((obj.field_goals_made/obj.field_goals_attempted) * 100, 2)
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_three_point_percentage(self, obj):
         if obj.three_pointers_attempted == 0:
             return 0
         else:
             return round((obj.three_pointers_made/obj.three_pointers_attempted) * 100, 2)
 
+    @extend_schema_field(OpenApiTypes.FLOAT)
     def get_free_throw_percentage(self, obj):
         if obj.free_throws_attempted == 0:
             return 0

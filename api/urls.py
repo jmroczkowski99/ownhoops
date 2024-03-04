@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
-
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from api import views
 
 router = DefaultRouter()
@@ -27,4 +27,6 @@ urlpatterns = [
     path('', include(teams_router.urls)),
     path('', include(games_router.urls)),
     path('', include(players_router.urls)),
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('schema/docs/', SpectacularSwaggerView.as_view(url_name='schema')),
 ]
