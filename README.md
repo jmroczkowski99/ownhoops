@@ -61,8 +61,9 @@ RESTful API created for managing all types of basketball competitions. Enables c
 
 ### Prerequisites
 
-* Python 3.12 or higher
-* Docker
+* Python 3.12 or higher,
+* Git,
+* Docker.
 
 ### Installation
 
@@ -372,3 +373,5 @@ Example valid input:
     "turnovers": 2
 }
 ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
