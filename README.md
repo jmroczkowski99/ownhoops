@@ -41,8 +41,6 @@
 
 RESTful API created for managing all types of basketball competitions. Enables creating, reading, updating and deleting teams, coaches, players, games and statlines. Provides calculating average stats and percentages, data validation and a lot of specific endpoints listed in Swagger UI based documentation. 
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 ### Built With
 
 * Django,
@@ -51,8 +49,6 @@ RESTful API created for managing all types of basketball competitions. Enables c
 * drf-spectacular,
 * PostgreSQL,
 * Docker.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -86,10 +82,8 @@ RESTful API created for managing all types of basketball competitions. Enables c
    ```
 4. Create a superuser to access features available only for authorized users
    ```sh
-   docker exec -it python manage.py createsuperuser
+   docker exec -it ownhoops_container python manage.py createsuperuser
    ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -184,8 +178,6 @@ Example valid input:
 }
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 ### Coaches
 
 Example coach .json response:
@@ -213,8 +205,6 @@ Example valid input:
     "team": "http://127.0.0.1:8000/teams/1/"
 }
 ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Players
 
@@ -271,8 +261,6 @@ Example valid input:
 }
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 ### Games
 
 Example .json response:
@@ -305,8 +293,6 @@ Example valid input:
     "away_team": "http://127.0.0.1:8000/teams/4/"
 }
 ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Stats
 Example .json response:
@@ -373,5 +359,3 @@ Example valid input:
     "turnovers": 2
 }
 ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
